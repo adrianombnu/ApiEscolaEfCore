@@ -19,7 +19,6 @@ namespace ApiEscola.Repository
 
         }
 
-
         public bool Cadastrar(Curso curso)
         {
             var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");

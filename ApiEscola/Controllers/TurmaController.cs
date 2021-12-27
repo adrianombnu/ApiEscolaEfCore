@@ -3,6 +3,7 @@ using ApiEscola.Entities;
 using ApiEscola.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 
 namespace ApiEscola.Controllers
 {
@@ -16,7 +17,7 @@ namespace ApiEscola.Controllers
             _turmaService = turmaService;
         }
 
-        /*
+
         [HttpPost, Route("turmas")]
         public IActionResult Cadastrar(TurmaDTO turmaDTO)
         {
@@ -27,24 +28,23 @@ namespace ApiEscola.Controllers
 
             try
             {
-                var gui = Guid.NewGuid();
-                var curso = new Turma(turmaDTO.Nome, turmaDTO.DataInicio, turmaDTO.DataFim, turmaDTO.Alunos, turmaDTO.Materias, gui);
-
-                return Created("", _turmaService.Cadastrar(curso));
+                var turma = new Turma(turmaDTO.Nome, turmaDTO.DataInicio, turmaDTO.DataFim, turmaDTO.IdMaterias, turmaDTO.IdCurso);
                 
+                return Created("", _turmaService.Cadastrar(turma));
+
             }
             catch (Exception ex)
             {
                 return BadRequest("Erro ao criar a turma: " + ex.Message);
             }
         }
-        */
 
+        /*
         [HttpGet, Route("turmas")]
         public IActionResult Get()
         {
             return Ok(_turmaService.ListarTurmas());
 
-        }
+        }*/
     }
 }

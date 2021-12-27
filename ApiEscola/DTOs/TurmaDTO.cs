@@ -9,8 +9,7 @@ namespace ApiEscola.DTOs
         public string Nome { get; set; }
         public DateTime DataInicio { get; set; }
         public DateTime DataFim { get; set; }
-        public List<AlunoDTO>? Alunos { get; set; }
-        public List<MateriaDTO> Materias { get; set; }
+        public List<Guid> IdMaterias { get; set; }
         public Guid IdCurso { get; set; }
 
 
@@ -27,32 +26,15 @@ namespace ApiEscola.DTOs
             if (string.IsNullOrEmpty(DataInicio.ToString()))
                 AddErros("Data de inicio da turma não foi informada.");
 
-            if (string.IsNullOrEmpty(DataInicio.ToString()))
+            if (string.IsNullOrEmpty(DataFim.ToString()))
                 AddErros("Data de fim da turma não foi informada.");
 
             if (IdCurso.ToString().Length <= 0 )
                 AddErros("Curso não informado.");
-
-            /*
-            if (Alunos is not null)
-            {
-                Alunos.Validar();
-
-                if (Alunos.Valido == false)
-                    AddErros(Alunos.Erros);
-
-            }
             
+            if (IdMaterias is null)
+                AddErros("Nenhuma materia foi informada.");
 
-            if (Materias is not null)
-            {
-                Materias.;
-
-                if (Materias.Valido == false)
-                    AddErros(Materias.Erros);
-
-            }
-            */
         }
     }
 }

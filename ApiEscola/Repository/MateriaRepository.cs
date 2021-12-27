@@ -70,6 +70,32 @@ namespace ApiEscola.Repository
 
         }
 
+        public Materia BuscaMateriaPeloId(Guid id)
+        {
+            var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
+
+            using (var conn = new OracleConnection(conexao))
+            {
+                conn.Open();
+
+                using var cmd = new OracleCommand(@"select * from materia where id = :id", conn);
+
+                cmd.Parameters.Add(new OracleParameter("id", id.ToString()));
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        return new Materia(Convert.ToString(reader["nome"]), Guid.Parse(Convert.ToString(reader["idProfessor"])), Guid.Parse(Convert.ToString(reader["id"])));
+
+                    }
+                }
+
+            }
+
+            return null;
+
+        }
         public IEnumerable<Materia> ListarMaterias()
         {
             var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");

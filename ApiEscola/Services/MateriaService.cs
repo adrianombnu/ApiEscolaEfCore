@@ -1,6 +1,8 @@
 ﻿using ApiEscola.DTOs;
 using ApiEscola.Entities;
 using ApiEscola.Repository;
+using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 
 namespace ApiEscola.Services
@@ -23,13 +25,24 @@ namespace ApiEscola.Services
 
             var professor = _professorRepository.BuscaProfessorPeloId(materia.IdProfessor);
 
-            if(professor is null)
+            if (professor is null)
                 return ResultadoDTO.ErroResultado("O prefessor informado não foi encontrado!");
 
             if (!_materiaRepository.Cadastrar(materia))
                 return ResultadoDTO.ErroResultado("Não foi possível cadastrar a materia!");
 
             return ResultadoDTO.SucessoResultado(materia);
+
+        }
+
+        public ResultadoDTO BuscaMateriaPeloId(Guid id)
+        {
+            var materia = _materiaRepository.BuscaMateriaPeloId(id);
+
+            if (materia is null)
+                return ResultadoDTO.ErroResultado("Materia não encontrada");
+
+            return null;
 
         }
 

@@ -25,8 +25,7 @@ namespace ApiEscola.Controllers
 
             try
             {
-                var gui = Guid.NewGuid();
-                var curso = new Materia(materiaDTO.Nome, materiaDTO.IdProfessor, gui);
+                var curso = new Materia(materiaDTO.Nome, materiaDTO.IdProfessor);
 
                 return Created("", _materiaService.Cadastrar(curso));
 

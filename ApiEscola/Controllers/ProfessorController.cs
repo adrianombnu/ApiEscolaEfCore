@@ -26,7 +26,6 @@ namespace ApiEscola.Controllers
 
             try
             {
-                var gui = Guid.NewGuid();
                 var professor = new Professor(professorDTO.Nome, professorDTO.Sobrenome, professorDTO.DataNascimento, professorDTO.Documento);
 
                 return Created("", _professorService.Cadastrar(professor));
