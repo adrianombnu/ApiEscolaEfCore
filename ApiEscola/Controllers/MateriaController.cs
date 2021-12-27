@@ -1,5 +1,7 @@
-﻿using ApiEscola.Services;
+﻿using ApiEscola.Entities;
+using ApiEscola.Services;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace ApiEscola.Controllers
 {
@@ -11,6 +13,28 @@ namespace ApiEscola.Controllers
         public MateriaController(MateriaService materiaService)
         {
             _materiaService = materiaService;
+        }
+
+        [HttpPost, Route("materias")]
+        public IActionResult Cadastrar(MateriaDTO materiaDTO)
+        {
+            materiaDTO.Validar();
+
+            if (!materiaDTO.Valido)
+                return BadRequest(materiaDTO.Erros);
+
+            try
+            {
+                var gui = Guid.NewGuid();
+                var curso = new Materia(materiaDTO.Nome, materiaDTO.IdProfessor, gui);
+
+                return Created("", _materiaService.Cadastrar(curso));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Erro ao criar a materia: " + ex.Message);
+            }
         }
 
         [HttpGet, Route("materias")]

@@ -1,6 +1,7 @@
 ﻿using ApiEscola.DTOs;
 using ApiEscola.Entities;
 using ApiEscola.Repository;
+using System;
 using System.Collections.Generic;
 
 namespace ApiEscola.Services
@@ -42,7 +43,22 @@ namespace ApiEscola.Services
             return ResultadoDTO.SucessoResultado(professor);
 
         }
+        public ResultadoDTO RemoverProfessor(Guid id)
+        {
+            var professor = _professorRepository.BuscaProfessorPeloId(id);
 
+            if (professor is null)
+                return ResultadoDTO.ErroResultado("Professor não encontrado");
+
+            if (_professorRepository.VerificaSePossuiMateriaVinculada(id))
+                return ResultadoDTO.ErroResultado("Este professor já possui materia(s) vinculada(s), favor remove-la(s)");
+
+            if (_professorRepository.RomoveProfessor(id))
+                return ResultadoDTO.SucessoResultado();
+            else
+                return ResultadoDTO.ErroResultado("Erro ao remover o professor");
+
+        }
         public IEnumerable<Professor> ListarProfessores()
         {
             return _professorRepository.ListarProfessores();

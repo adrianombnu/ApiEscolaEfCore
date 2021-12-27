@@ -65,6 +65,18 @@ namespace ApiEscola.Controllers
 
         }
 
+        [HttpDelete, Route("{id}/professores")]
+        public IActionResult RemoverProfessor(Guid id)
+        {
+            var result = _professorService.RemoverProfessor(id);
+
+            if (!result.Sucesso)
+                return BadRequest(result);
+            else
+                return Ok(result);
+
+        }
+
         [HttpGet, Route("professores")]
         public IActionResult Get()
         {

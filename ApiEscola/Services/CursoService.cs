@@ -1,6 +1,7 @@
 ﻿using ApiEscola.DTOs;
 using ApiEscola.Entities;
 using ApiEscola.Repository;
+using System;
 using System.Collections.Generic;
 
 namespace ApiEscola.Services
@@ -41,6 +42,23 @@ namespace ApiEscola.Services
                 return ResultadoDTO.ErroResultado("Curso não pode ser atualizado!");
 
             return ResultadoDTO.SucessoResultado(curso);
+
+        }
+
+        public ResultadoDTO RemoverCurso(Guid id)
+        {
+            var curso = _cursoRepository.BuscaCursoPeloId(id);
+
+            if (curso is null)
+                return ResultadoDTO.ErroResultado("Curso não encontrado");
+
+            if(_cursoRepository.VerificaSeCursoPossuiTurma(id))
+                return ResultadoDTO.ErroResultado("Ester curso já possui uma turma cadastrada, favor remove-la");
+
+            if (_cursoRepository.RomoveCurso(id))
+                return ResultadoDTO.SucessoResultado();
+            else
+                return ResultadoDTO.ErroResultado("Erro ao remover o curso");
 
         }
 

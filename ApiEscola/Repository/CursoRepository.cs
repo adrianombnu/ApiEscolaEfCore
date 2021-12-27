@@ -75,6 +75,30 @@ namespace ApiEscola.Repository
             return retorno;
         }
 
+        public bool RomoveCurso(Guid id)
+        {
+            var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
+            var retorno = false;
+
+            using (var conn = new OracleConnection(conexao))
+            {
+                conn.Open();
+
+                using var cmd = new OracleCommand(
+                    @"DELETE FROM APPACADEMY.CURSO                        
+                      WHERE id = :Id", conn);
+
+                cmd.Parameters.Add(new OracleParameter("Id", id.ToString()));
+
+                var rows = cmd.ExecuteNonQuery();
+
+                if (rows > 0)
+                    retorno = true;
+            }
+
+            return retorno;
+        }
+
         public bool BuscaCursoPeloNome(string nomeCurso)
         {
             var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
@@ -149,6 +173,29 @@ namespace ApiEscola.Repository
             }
 
             return null;
+
+        }
+
+        public bool VerificaSeCursoPossuiTurma(Guid id)
+        {
+            var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
+
+            using (var conn = new OracleConnection(conexao))
+            {
+                conn.Open();
+
+                using var cmd = new OracleCommand(@"SELECT * FROM CURSO c INNER JOIN turma t ON c.ID = t.IDCURSO WHERE c.ID  = :idCurso", conn);
+
+                cmd.Parameters.Add(new OracleParameter("idCurso", id.ToString()));
+
+                using var reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                    return true;
+
+            }
+
+            return false;
 
         }
 

@@ -81,6 +81,30 @@ namespace ApiEscola.Repository
             return retorno;
         }
 
+        public bool RomoveProfessor(Guid id)
+        {
+            var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
+            var retorno = false;
+
+            using (var conn = new OracleConnection(conexao))
+            {
+                conn.Open();
+
+                using var cmd = new OracleCommand(
+                    @"DELETE FROM APPACADEMY.professor                        
+                      WHERE id = :Id", conn);
+
+                cmd.Parameters.Add(new OracleParameter("Id", id.ToString()));
+
+                var rows = cmd.ExecuteNonQuery();
+
+                if (rows > 0)
+                    retorno = true;
+            }
+
+            return retorno;
+        }
+
         public bool BuscaProfessorPeloDocumento(string documento)
         {
             var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
@@ -131,6 +155,29 @@ namespace ApiEscola.Repository
             }
 
             return null;
+
+        }
+
+        public bool VerificaSePossuiMateriaVinculada(Guid id)
+        {
+            var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
+
+            using (var conn = new OracleConnection(conexao))
+            {
+                conn.Open();
+
+                using var cmd = new OracleCommand(@"SELECT * FROM professor p INNER JOIN materia m ON p.id = M.idProfessor WHERE p.ID  = :idProfessor", conn);
+
+                cmd.Parameters.Add(new OracleParameter("idProfessor", id.ToString()));
+
+                using var reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                    return true;
+
+            }
+
+            return false;
 
         }
 
