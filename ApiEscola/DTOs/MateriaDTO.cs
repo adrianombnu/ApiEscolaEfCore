@@ -1,5 +1,6 @@
 ﻿using ApiEscola.DTOs;
 using System;
+using System.Text.RegularExpressions;
 
 namespace ApiEscola.Entities
 {
@@ -11,6 +12,11 @@ namespace ApiEscola.Entities
         public override void Validar()
         {
             Valido = true;
+
+            Regex rgx = new Regex(@"[^a-zA-Z\s]");
+
+            if (rgx.IsMatch(Nome))
+                AddErros("Nome da materia contêm caracteres inválidos");
 
             if (string.IsNullOrEmpty(Nome))
                 AddErros("Nome da materia não foi informado.");

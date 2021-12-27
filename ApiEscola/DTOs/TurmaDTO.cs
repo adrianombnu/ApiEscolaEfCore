@@ -10,7 +10,7 @@ namespace ApiEscola.DTOs
         public DateTime DataInicio { get; set; }
         public DateTime DataFim { get; set; }
         public List<AlunoDTO>? Alunos { get; set; }
-        public List<MateriaDTO>? Materias { get; set; }
+        public List<MateriaDTO> Materias { get; set; }
         public Guid IdCurso { get; set; }
 
 
@@ -42,15 +42,17 @@ namespace ApiEscola.DTOs
                     AddErros(Alunos.Erros);
 
             }
+            
 
             if (Materias is not null)
             {
-                Materias.Validar();
+                Materias.;
 
                 if (Materias.Valido == false)
                     AddErros(Materias.Erros);
 
-            }*/
+            }
+            */
         }
     }
 }

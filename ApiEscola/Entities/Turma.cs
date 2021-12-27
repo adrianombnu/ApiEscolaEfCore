@@ -5,32 +5,34 @@ namespace ApiEscola.Entities
 {
     public class Turma : Base
     {
-        public Turma(string nome, DateTime dataInicio, DateTime dataFim, List<AlunoDTO> alunos, List<MateriaDTO> materias)
+        public Turma(string nome, DateTime dataInicio, DateTime dataFim, List<Aluno> alunos, List<Materia> materias, Guid idCurso)
         {
             Nome = nome;
             DataInicio = dataInicio;
             DataFim = dataFim;
             Alunos = alunos;
             Materias = materias;
-            IdCurso = Guid.NewGuid();
+            Id = Guid.NewGuid();
+            IdCurso = idCurso;
         
         }
 
-        public Turma(string nome, DateTime dataInicio, DateTime dataFim, List<AlunoDTO> alunos, List<MateriaDTO> materias, Guid idCurso)
+        public Turma(string nome, DateTime dataInicio, DateTime dataFim, List<Aluno> alunos, List<Materia> materias, Guid idTurma, Guid idCurso)
         {
             Nome = nome;
             DataInicio = dataInicio;
             DataFim = dataFim;
             Alunos = alunos;
             Materias = materias;
+            Id = idTurma;
             IdCurso = idCurso;
         }
 
         public string Nome { get; set; }
         public DateTime DataInicio { get; set; }
         public DateTime DataFim { get; set; }
-        public List<AlunoDTO> Alunos { get; set; }
-        public List<MateriaDTO> Materias { get; set; }
+        public List<Aluno> Alunos { get; set; }
+        public List<Materia> Materias { get; set; }
         public Guid IdCurso { get; set; }
 
     }
