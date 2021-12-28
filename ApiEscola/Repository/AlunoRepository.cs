@@ -260,6 +260,7 @@ namespace ApiEscola.Services
             {
                 conn.Open();
 
+                /*
                 using var cmd = new OracleCommand();
 
                 var query = (@"select * from aluno WHERE 1 = 1");
@@ -286,7 +287,31 @@ namespace ApiEscola.Services
 
                 cmd.Connection = conn;  
                 cmd.CommandText = sb.ToString();    
-                
+                */
+
+                var query = (@"select * from aluno WHERE 1 = 1");
+
+                var sb = new StringBuilder(query);
+
+                if (!string.IsNullOrEmpty(nome))
+                    sb.Append(" AND nome like  '%' || :Nome || '%' ");
+
+                if (!string.IsNullOrEmpty(sobrenome))
+                    sb.Append(" AND sobrenome like '%' || :Sobrenome || '%' ");
+
+                if (!string.IsNullOrEmpty(dataDeNascimento.ToString()))
+                    sb.Append(" AND to_char(dataDeNascimento,'dd/mm/rrrr') = :DataDeNascimento");
+
+                using var cmd = new OracleCommand(sb.ToString(),conn);
+
+                //Esse bind serve para que quando, for passado mais parametros do que o necessário para montar o comando, devido a ser criado de forma dinamica, vamos evitar que dê
+                //problema de quantidade maior ou a menor
+                cmd.BindByName = true;
+
+                cmd.Parameters.Add(new OracleParameter("Nome", nome));
+                cmd.Parameters.Add(new OracleParameter("Sobrenome", sobrenome));
+                cmd.Parameters.Add(new OracleParameter("DataDeNascimento", (dataDeNascimento.HasValue ? dataDeNascimento.Value.ToString("dd/MM/yyyy") : "null")));
+
                 using (var reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
