@@ -84,9 +84,9 @@ namespace ApiEscola.Controllers
         }
 
         [HttpGet, Route("cursos")]
-        public IActionResult Get()
+        public IActionResult FiltrarCursos([FromQuery] string? nome, [FromQuery] string? descricao, [FromQuery] int page = 1, [FromQuery] int itens = 50)
         {
-            return Ok(_cursoService.ListarCursos());
+            return Ok(_cursoService.ListarCursos(nome, descricao, page, itens));
 
         }
 

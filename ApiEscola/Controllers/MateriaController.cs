@@ -83,9 +83,9 @@ namespace ApiEscola.Controllers
         }
 
         [HttpGet, Route("materias")]
-        public IActionResult Get()
+        public IActionResult FiltrarMaterias([FromQuery] string? nome, int page = 1, [FromQuery] int itens = 50)
         {
-            return Ok(_materiaService.ListarMaterias());
+            return Ok(_materiaService.ListarMaterias(nome, page, itens));
 
         }
     }

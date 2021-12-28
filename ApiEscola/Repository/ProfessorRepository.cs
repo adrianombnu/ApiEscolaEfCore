@@ -3,6 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace ApiEscola.Repository
 {
@@ -205,7 +207,7 @@ namespace ApiEscola.Repository
 
         }
 
-        public IEnumerable<Professor> ListarProfessores()
+        public IEnumerable<Professor> ListarProfessores(string? nome = null, string? sobrenome = null, DateTime? dataDeNascimento = null, string? documento = null, int page = 1, int itens = 50)
         {
             var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
 
@@ -213,7 +215,38 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(@"select * from professor", conn);
+                using var cmd = new OracleCommand();
+
+                var query = (@"select * from professor WHERE 1 = 1");
+
+                var sb = new StringBuilder(query);
+
+                if (!string.IsNullOrEmpty(nome))
+                {
+                    sb.Append(" AND nome like '%' || :Nome || '%'");
+                    cmd.Parameters.Add(new OracleParameter("Nome", nome));
+                }
+
+                if (!string.IsNullOrEmpty(sobrenome))
+                {
+                    sb.Append(" AND sobrenome like '%' || :Sobrenome || '%'");
+                    cmd.Parameters.Add(new OracleParameter("Sobrenome", sobrenome));
+                }
+
+                if (!string.IsNullOrEmpty(dataDeNascimento.ToString()))
+                {
+                    sb.Append(" AND to_char(dataDeNascimento,'dd/mm/rrrr') = :DataDeNascimento");
+                    cmd.Parameters.Add(new OracleParameter("DataDeNascimento", dataDeNascimento.Value.ToString("dd/MM/yyyy")));
+                }
+
+                if (!string.IsNullOrEmpty(documento))
+                {
+                    sb.Append(" AND documento = :Documento");
+                    cmd.Parameters.Add(new OracleParameter("Documento", documento));
+                }
+
+                cmd.Connection = conn;
+                cmd.CommandText = sb.ToString();
 
                 using (var reader = cmd.ExecuteReader())
                 {
@@ -227,7 +260,7 @@ namespace ApiEscola.Repository
                 }
             }
 
-            return _professores;
+            return _professores.Skip((page - 1) * itens).Take(itens);
 
         }
 

@@ -3,6 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace ApiEscola.Repository
 {
@@ -195,7 +197,7 @@ namespace ApiEscola.Repository
 
         }
 
-        public IEnumerable<Materia> ListarMaterias()
+        public IEnumerable<Materia> ListarMaterias(string? nome = null, int page = 1, int itens = 50)
         {
             var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
 
@@ -203,7 +205,20 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(@"select * from materia", conn);
+                using var cmd = new OracleCommand();
+
+                var query = (@"select * from materia WHERE 1 = 1");
+
+                var sb = new StringBuilder(query);
+
+                if (!string.IsNullOrEmpty(nome))
+                {
+                    sb.Append(" AND nome like '%' || :Nome || '%'");
+                    cmd.Parameters.Add(new OracleParameter("Nome", nome));
+                }
+
+                cmd.Connection = conn;
+                cmd.CommandText = sb.ToString();
 
                 using (var reader = cmd.ExecuteReader())
                 {
@@ -217,7 +232,7 @@ namespace ApiEscola.Repository
                 }
             }
 
-            return _materias;
+            return _materias.Skip((page - 1) * itens).Take(itens);
 
         }
 

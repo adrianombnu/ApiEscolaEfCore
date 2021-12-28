@@ -17,7 +17,6 @@ namespace ApiEscola.Controllers
             _turmaService = turmaService;
         }
 
-
         [HttpPost, Route("turmas")]
         public IActionResult Cadastrar(TurmaDTO turmaDTO)
         {
@@ -39,12 +38,18 @@ namespace ApiEscola.Controllers
             }
         }
 
-        /*
-        [HttpGet, Route("turmas")]
-        public IActionResult Get()
+        [HttpGet, Route("{id}/turmas")]
+        public IActionResult Get(Guid id)
         {
-            return Ok(_turmaService.ListarTurmas());
+            return Ok(_turmaService.BuscaTurmaPeloId(id));
 
-        }*/
+        }
+
+        [HttpGet, Route("turmas")]
+        public IActionResult FiltrarTurmas([FromQuery] string? nome, [FromQuery] DateTime? dataInicio, [FromQuery] DateTime? dataFim, int page = 1, [FromQuery] int itens = 50)
+        {
+            return Ok(_turmaService.ListarTurmas(nome, dataInicio, dataFim, page, itens));
+
+        }
     }
 }

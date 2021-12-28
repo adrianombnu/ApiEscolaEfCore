@@ -4,6 +4,8 @@ using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using System.Text;
 
 namespace ApiEscola.Services
 {
@@ -112,10 +114,14 @@ namespace ApiEscola.Services
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(@"SELECT * FROM aluno a INNER JOIN TURMA_ALUNO ta ON a.ID = ta.IDALUNO WHERE a.DOCUMENTO = :Documento AND ta.IDTURMA = :IdTurma;", conn);
+                using var cmd = new OracleCommand(@"SELECT * FROM aluno a 
+                                                       INNER JOIN TURMA_ALUNO ta  
+                                                               ON a.ID = ta.IDALUNO 
+                                                            WHERE a.DOCUMENTO = :Documento 
+                                                              AND ta.IDTURMA = :IdTurma", conn);
 
-                cmd.Parameters.Add(new OracleParameter("IdTurma", idTurma.ToString()));
                 cmd.Parameters.Add(new OracleParameter("Documento", documento));
+                cmd.Parameters.Add(new OracleParameter("IdTurma", idTurma.ToString()));
 
                 using var reader = cmd.ExecuteReader();
 
@@ -158,7 +164,7 @@ namespace ApiEscola.Services
                             }
                         }
 
-                        return new Aluno(Convert.ToString(reader["nome"]), Convert.ToString(reader["sobrenome"]), Convert.ToDateTime(reader["dataDeNascimento"]), Convert.ToString(reader["documento"]), materias);
+                        return new Aluno(Convert.ToString(reader["nome"]), Convert.ToString(reader["sobrenome"]), Convert.ToDateTime(reader["dataDeNascimento"]), Convert.ToString(reader["documento"]), materias, Guid.Parse(Convert.ToString(reader["id"])));
 
                     }
                 }
@@ -243,6 +249,72 @@ namespace ApiEscola.Services
             }
 
             return retorno;
+
+        }
+
+        public IEnumerable<Aluno> ListarAlunos(string? nome = null, string? sobrenome = null, DateTime? dataDeNascimento = null, int page = 1, int itens = 50)
+        {
+            var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
+            
+            using (var conn = new OracleConnection(conexao))
+            {
+                conn.Open();
+
+                using var cmd = new OracleCommand();
+
+                var query = (@"select * from aluno WHERE 1 = 1");
+
+                var sb = new StringBuilder(query);
+
+                if (!string.IsNullOrEmpty(nome))
+                {
+                    sb.Append(" AND nome like  '%' || :Nome || '%' ");
+                    cmd.Parameters.Add(new OracleParameter("Nome", nome));
+                }
+
+                if (!string.IsNullOrEmpty(sobrenome))
+                {
+                    sb.Append(" AND sobrenome like '%' || :Sobrenome || '%' ");
+                    cmd.Parameters.Add(new OracleParameter("Sobrenome", sobrenome));
+                }
+
+                if (!string.IsNullOrEmpty(dataDeNascimento.ToString()))
+                {
+                    sb.Append(" AND to_char(dataDeNascimento,'dd/mm/rrrr') = :DataDeNascimento");
+                    cmd.Parameters.Add(new OracleParameter("DataDeNascimento", dataDeNascimento.Value.ToString("dd/MM/yyyy")));
+                }
+
+                cmd.Connection = conn;  
+                cmd.CommandText = sb.ToString();    
+                
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        List<Guid> materias = new List<Guid>();
+
+                        using var cmdMaterias = new OracleCommand(@"select * from aluno_materia where idAluno = :idAluno", conn);
+
+                        cmdMaterias.Parameters.Add(new OracleParameter("idAluno", Convert.ToString(reader["id"])));
+
+                        using (var readerMaterias = cmdMaterias.ExecuteReader())
+                        {
+                            while (readerMaterias.Read())
+                            {
+                                materias.Add(Guid.Parse(Convert.ToString(readerMaterias["idMateria"])));
+
+                            }
+                        }
+
+                        var aluno = new Aluno(Convert.ToString(reader["nome"]), Convert.ToString(reader["sobrenome"]), Convert.ToDateTime(reader["dataDeNascimento"]), Convert.ToString(reader["documento"]), materias, Guid.Parse(Convert.ToString(reader["id"])));
+
+                        _alunos.Add(aluno);
+
+                    }
+                }
+            }
+
+            return _alunos.Skip((page - 1) * itens).Take(itens);
 
         }
 

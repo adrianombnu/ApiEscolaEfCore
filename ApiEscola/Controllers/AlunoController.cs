@@ -55,5 +55,12 @@ namespace ApiEscola.Controllers
 
         }
 
+        [HttpGet, Route("alunos")]
+        public IActionResult FiltrarAlunos([FromQuery] string? nome, [FromQuery] string? sobrenome, [FromQuery] DateTime? dataDeNascimento, [FromQuery] int page = 1, [FromQuery] int itens = 50)
+        {
+            return Ok(_alunoService.ListarAlunos(nome, sobrenome, dataDeNascimento, page, itens));
+
+        }
+
     }
 }

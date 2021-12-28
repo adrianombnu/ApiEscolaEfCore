@@ -77,9 +77,9 @@ namespace ApiEscola.Controllers
         }
 
         [HttpGet, Route("professores")]
-        public IActionResult Get()
+        public IActionResult FiltrarProfessores([FromQuery] string? nome, [FromQuery] string? sobrenome, [FromQuery] DateTime? dataDeNascimento, [FromQuery] string? documento, int page = 1, [FromQuery] int itens = 50)
         {
-            return Ok(_professorService.ListarProfessores());
+            return Ok(_professorService.ListarProfessores(nome, sobrenome, dataDeNascimento, documento, page, itens));
 
         }
     }

@@ -73,9 +73,9 @@ namespace ApiEscola.Services
 
         }
 
-        public IEnumerable<Curso> ListarCursos()
+        public IEnumerable<Curso> ListarCursos(string? nome = null, string? descricao = null, int page = 1, int itens = 50)
         {
-            return _cursoRepository.ListarCursos();
+            return _cursoRepository.ListarCursos(nome, descricao, page, itens);
 
         }
 

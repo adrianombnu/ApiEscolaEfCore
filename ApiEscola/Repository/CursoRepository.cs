@@ -3,6 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace ApiEscola.Repository
 {
@@ -199,7 +201,7 @@ namespace ApiEscola.Repository
 
         }
 
-        public IEnumerable<Curso> ListarCursos()
+        public IEnumerable<Curso> ListarCursos(string? nome = null, string? descricao = null, int page = 1, int itens = 50)
         {
             var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
 
@@ -207,7 +209,26 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(@"select * from curso", conn);
+                using var cmd = new OracleCommand();
+
+                var query = (@"select * from curso WHERE 1 = 1");
+
+                var sb = new StringBuilder(query);
+
+                if (!string.IsNullOrEmpty(nome))
+                {
+                    sb.Append(" AND nome like '%' || :Nome || '%'");
+                    cmd.Parameters.Add(new OracleParameter("Nome", nome));
+                }
+
+                if (!string.IsNullOrEmpty(descricao))
+                {
+                    sb.Append(" AND descricao like '%' || :Descricao || '%'");
+                    cmd.Parameters.Add(new OracleParameter("Descricao", descricao));
+                }
+
+                cmd.Connection = conn;
+                cmd.CommandText = sb.ToString();
 
                 using (var reader = cmd.ExecuteReader())
                 {
@@ -221,7 +242,7 @@ namespace ApiEscola.Repository
                 }
             }
 
-            return _cursos;
+            return _cursos.Skip((page - 1) * itens).Take(itens);
 
         }
 

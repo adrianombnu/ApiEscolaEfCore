@@ -51,7 +51,7 @@ namespace ApiEscola
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "ExercicioApiEscolca", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "ExercicioApiEscola", Version = "v1" });
             });
         }
 

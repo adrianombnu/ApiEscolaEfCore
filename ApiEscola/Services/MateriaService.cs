@@ -90,9 +90,9 @@ namespace ApiEscola.Services
 
         }
 
-        public IEnumerable<Materia> ListarMaterias()
+        public IEnumerable<Materia> ListarMaterias(string? nome = null, int page = 1, int itens = 50)
         {
-            return _materiaRepository.ListarMaterias();
+            return _materiaRepository.ListarMaterias(nome, page, itens);
 
         }
     }
