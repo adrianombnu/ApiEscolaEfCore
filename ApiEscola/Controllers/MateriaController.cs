@@ -25,15 +25,61 @@ namespace ApiEscola.Controllers
 
             try
             {
-                var curso = new Materia(materiaDTO.Nome, materiaDTO.IdProfessor);
+                var materia = new Materia(materiaDTO.Nome, materiaDTO.IdProfessor);
 
-                return Created("", _materiaService.Cadastrar(curso));
+                return Created("", _materiaService.Cadastrar(materia));
 
             }
             catch (Exception ex)
             {
-                return BadRequest("Erro ao criar a materia: " + ex.Message);
+                return BadRequest("Erro ao cadastrar a materia: " + ex.Message);
             }
+        }
+
+        [HttpPut, Route("materias")]
+        public IActionResult Atualizar(Guid id, MateriaDTO materiaDTO)
+        {
+            materiaDTO.Validar();
+
+            if (!materiaDTO.Valido)
+                return BadRequest(materiaDTO.Erros);
+
+            try
+            {
+                var materia = new Materia(materiaDTO.Nome, materiaDTO.IdProfessor, id);
+
+                var result = _materiaService.AtualizarMateria(materia);
+
+                if (!result.Sucesso)
+                    return BadRequest(result);
+                else
+                    return Ok(result);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Erro ao atualizar os dados da materia: " + ex.Message);
+            }
+
+        }
+
+        [HttpDelete, Route("{id}/materias")]
+        public IActionResult RemoverMateria(Guid id)
+        {
+            var result = _materiaService.RemoverMateria(id);
+
+            if (!result.Sucesso)
+                return BadRequest(result);
+            else
+                return Ok(result);
+
+        }
+
+        [HttpGet, Route("{id}/materias")]
+        public IActionResult Get(Guid id)
+        {
+            return Ok(_materiaService.BuscaMateriaPeloId(id));
+
         }
 
         [HttpGet, Route("materias")]

@@ -43,6 +43,7 @@ namespace ApiEscola.Services
             return ResultadoDTO.SucessoResultado(professor);
 
         }
+
         public ResultadoDTO RemoverProfessor(Guid id)
         {
             var professor = _professorRepository.BuscaProfessorPeloId(id);
@@ -53,7 +54,7 @@ namespace ApiEscola.Services
             if (_professorRepository.VerificaSePossuiMateriaVinculada(id))
                 return ResultadoDTO.ErroResultado("Este professor já possui materia(s) vinculada(s), favor remove-la(s)");
 
-            if (_professorRepository.RomoveProfessor(id))
+            if (_professorRepository.RomoverProfessor(id))
                 return ResultadoDTO.SucessoResultado();
             else
                 return ResultadoDTO.ErroResultado("Erro ao remover o professor");

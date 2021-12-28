@@ -46,6 +46,82 @@ namespace ApiEscola.Repository
             return retorno;
         }
 
+        public bool AtualizarMateria(Materia materia)
+        {
+            var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
+            var retorno = false;
+
+            using (var conn = new OracleConnection(conexao))
+            {
+                conn.Open();
+
+                using var cmd = new OracleCommand(
+                    @"UPDATE APPACADEMY.materia
+                        SET id = :id,
+                            nome = :Nome, 
+                            idProfessor = :IdProfessor
+                      where id = :id", conn);
+
+                cmd.Parameters.Add(new OracleParameter("Id", materia.Id.ToString()));
+                cmd.Parameters.Add(new OracleParameter("Nome", materia.Nome));
+                cmd.Parameters.Add(new OracleParameter("IdProfessor", materia.IdProfessor.ToString()));
+
+                var rows = cmd.ExecuteNonQuery();
+
+                if (rows > 0)
+                    retorno = true;
+            }
+
+            return retorno;
+        }
+
+        public bool RomoverMateria(Guid id)
+        {
+            var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
+            var retorno = false;
+
+            using (var conn = new OracleConnection(conexao))
+            {
+                conn.Open();
+
+                using var cmd = new OracleCommand(
+                    @"DELETE FROM APPACADEMY.materia                        
+                      WHERE id = :Id", conn);
+
+                cmd.Parameters.Add(new OracleParameter("Id", id.ToString()));
+
+                var rows = cmd.ExecuteNonQuery();
+
+                if (rows > 0)
+                    retorno = true;
+            }
+
+            return retorno;
+        }
+
+        public bool VerificaSePossuiTurmaVinculada(Guid id)
+        {
+            var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
+
+            using (var conn = new OracleConnection(conexao))
+            {
+                conn.Open();
+
+                using var cmd = new OracleCommand(@"SELECT * FROM turma_materia tm WHERE tm.idmateria  = :idMateria", conn);
+
+                cmd.Parameters.Add(new OracleParameter("idMateria", id.ToString()));
+
+                using var reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                    return true;
+
+            }
+
+            return false;
+
+        }
+
         public bool BuscaMateriaPeloNome(string nomeMateria)
         {
             var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
@@ -96,6 +172,31 @@ namespace ApiEscola.Repository
             return null;
 
         }
+
+        public bool VerificaSeMateriaJaCadastrada(string nomeMateria, Guid id)
+        {
+            var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
+
+            using (var conn = new OracleConnection(conexao))
+            {
+                conn.Open();
+
+                using var cmd = new OracleCommand(@"select * from materia where id <> :id and nome = :nomeMateria ", conn);
+
+                cmd.Parameters.Add(new OracleParameter("id", id.ToString()));
+                cmd.Parameters.Add(new OracleParameter("nome", nomeMateria));
+
+                using var reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                    return true;
+
+            }
+
+            return false;
+
+        }
+
         public IEnumerable<Materia> ListarMaterias()
         {
             var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");

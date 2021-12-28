@@ -10,6 +10,10 @@ namespace ApiEscola.Repository
     public class TurmaRepository
     {
         private readonly IConfiguration _configuration;
+        private List<Aluno> _alunos;
+        private List<Materia> _materiasCurso;
+        private List<Materia> _materiasAluno;
+        private List<Turma> _turmas;
         
 
         public TurmaRepository(IConfiguration configuration)
@@ -38,8 +42,8 @@ namespace ApiEscola.Repository
                 try
                 {
                     command.CommandText = @"INSERT INTO APPACADEMY.turma
-                        (ID, NOME, dataInicio, dataFim, idCurso)
-                      VALUES(:Id,:Nome,:DataInicio,:DataFim, :IdCurso)";
+                                            (ID, NOME, dataInicio, dataFim, idCurso)
+                                          VALUES(:Id,:Nome,:DataInicio,:DataFim, :IdCurso)";
 
                     command.Parameters.Add(new OracleParameter("Id", turma.Id.ToString()));
                     command.Parameters.Add(new OracleParameter("Nome", turma.Nome));
@@ -58,8 +62,8 @@ namespace ApiEscola.Repository
                         commandAddMateria.Transaction = transaction;
 
                         commandAddMateria.CommandText = @"INSERT INTO APPACADEMY.turma_materia
-                                                (IDTURMA, IDMATERIA)
-                                              VALUES(:IdTurma,:IdMateria)";
+                                                            (IDTURMA, IDMATERIA)
+                                                          VALUES(:IdTurma,:IdMateria)";
 
                         commandAddMateria.Parameters.Add(new OracleParameter("IdTurma", turma.Id.ToString()));
                         commandAddMateria.Parameters.Add(new OracleParameter("IdMateria", id.ToString()));
@@ -108,6 +112,33 @@ namespace ApiEscola.Repository
             }
 
             return cursoEncontrado;
+
+        }
+
+        public Turma BuscaTurmaPeloId(Guid id)
+        {
+            var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
+
+            using (var conn = new OracleConnection(conexao))
+            {
+                conn.Open();
+
+                using var cmd = new OracleCommand(@"select * from turma where id = :id", conn);
+
+                cmd.Parameters.Add(new OracleParameter("id", id.ToString()));
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        return new Turma(Convert.ToString(reader["nome"]), Convert.ToDateTime(reader["dataInicio"]), Convert.ToDateTime(reader["dataFim"]), null, Guid.Parse(Convert.ToString(reader["idTurma"])), Guid.Parse(Convert.ToString(reader["idCurso"])));
+                        
+                    }
+                }
+
+            }
+
+            return null;
 
         }
 
@@ -192,7 +223,6 @@ namespace ApiEscola.Repository
 
         }
         */
-        
 
     }
 }

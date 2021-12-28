@@ -81,7 +81,7 @@ namespace ApiEscola.Repository
             return retorno;
         }
 
-        public bool RomoveProfessor(Guid id)
+        public bool RomoverProfessor(Guid id)
         {
             var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
             var retorno = false;

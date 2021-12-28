@@ -41,11 +41,13 @@ namespace ApiEscola
             services.AddTransient<ProfessorRepository>();
             services.AddTransient<MateriaRepository>();
             services.AddTransient<TurmaRepository>();
+            services.AddTransient<AlunoRepository>();
 
             services.AddTransient<CursoService>();
             services.AddTransient<ProfessorService>();
             services.AddTransient<MateriaService>();
             services.AddTransient<TurmaService>();
+            services.AddTransient<AlunoService>();
 
             services.AddSwaggerGen(c =>
             {

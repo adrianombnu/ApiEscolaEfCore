@@ -33,7 +33,7 @@ namespace ApiEscola.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest("Erro ao criar o professor: " + ex.Message);
+                return BadRequest("Erro ao cadastrar o professor: " + ex.Message);
             }
         }
 

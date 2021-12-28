@@ -11,7 +11,8 @@ namespace ApiEscola.Entities
         public string Sobrenome { get; set; }
         public DateTime DataNascimento { get; set; }
         public string Documento{ get; set; }
-        public List<MateriaDTO> Materias { get; set; }
+        public List<Guid> IdMaterias { get; set; }
+        public Guid IdTurma { get; set; }
 
         public override void Validar()
         {
@@ -31,15 +32,11 @@ namespace ApiEscola.Entities
             if (DataNascimento.Date > DateTime.Now.Date || string.IsNullOrEmpty(DataNascimento.ToString()))
                 AddErros("Data de nascimento invalida");
 
-            /*
-            if (Adress is not null)
-            {
-                Adress.Validar();
+            if (IdTurma.ToString().Length <= 0)
+                AddErros("Turma não informada.");
 
-                if (Adress.Success == false)
-                    AddErros(Adress.Errors);
-
-            }*/
+            if (IdMaterias is null)
+                AddErros("Nenhuma materia foi informada.");
 
         }
 

@@ -35,6 +35,45 @@ namespace ApiEscola.Services
 
         }
 
+        public ResultadoDTO AtualizarMateria(Materia materia)
+        {
+            var materiaAtual = _materiaRepository.BuscaMateriaPeloId(materia.Id);
+
+            if (materiaAtual is null)
+                return ResultadoDTO.ErroResultado("Matéria não encontrada!");
+
+            if (_materiaRepository.VerificaSeMateriaJaCadastrada(materia.Nome, materia.Id))
+                return ResultadoDTO.ErroResultado("Já existe uma materia cadastrada com o nome informado!");
+
+            var professor = _professorRepository.BuscaProfessorPeloId(materia.IdProfessor);
+
+            if (professor is null)
+                return ResultadoDTO.ErroResultado("O prefessor informado não foi encontrado!");
+
+            if (!_materiaRepository.AtualizarMateria(materia))
+                return ResultadoDTO.ErroResultado("Matéria não pode ser atualizada!");
+
+            return ResultadoDTO.SucessoResultado(materia);
+
+        }
+
+        public ResultadoDTO RemoverMateria(Guid id)
+        {
+            var materia = _materiaRepository.BuscaMateriaPeloId(id);
+
+            if (materia is null)
+                return ResultadoDTO.ErroResultado("Matéria não encontrada");
+
+            if (_materiaRepository.VerificaSePossuiTurmaVinculada(id))
+                return ResultadoDTO.ErroResultado("Matéria já está vinculada a uma turma, favor remover o vinculo");
+
+            if (_materiaRepository.RomoverMateria(id))
+                return ResultadoDTO.SucessoResultado();
+            else
+                return ResultadoDTO.ErroResultado("Erro ao remover a matéria");
+
+        }
+
         public ResultadoDTO BuscaMateriaPeloId(Guid id)
         {
             var materia = _materiaRepository.BuscaMateriaPeloId(id);
@@ -42,7 +81,7 @@ namespace ApiEscola.Services
             if (materia is null)
                 return ResultadoDTO.ErroResultado("Materia não encontrada");
 
-            return null;
+            return ResultadoDTO.SucessoResultado(materia);
 
         }
 

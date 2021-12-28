@@ -31,11 +31,11 @@ namespace ApiEscola.Controllers
                 var turma = new Turma(turmaDTO.Nome, turmaDTO.DataInicio, turmaDTO.DataFim, turmaDTO.IdMaterias, turmaDTO.IdCurso);
                 
                 return Created("", _turmaService.Cadastrar(turma));
-
+                
             }
             catch (Exception ex)
             {
-                return BadRequest("Erro ao criar a turma: " + ex.Message);
+                return BadRequest("Erro ao cadastrar a turma: " + ex.Message);
             }
         }
 

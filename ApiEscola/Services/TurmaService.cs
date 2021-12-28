@@ -36,6 +36,12 @@ namespace ApiEscola.Services
             if (turma.DataFim.Date < turma.DataInicio.Date)
                 return ResultadoDTO.ErroResultado("Data fim não pode ser menor que " + turma.DataInicio.Date.ToString("dd/MM/yyyy"));
 
+            if(turma.IdMaterias.Count < 3)
+                return ResultadoDTO.ErroResultado("Turma deve conter no minímo 3 matérias em sua grade curricular.");
+
+            if (turma.IdMaterias.Count > 7)
+                return ResultadoDTO.ErroResultado("Turma deve conter no máximo 7 matérias em sua grade curricular.");
+
             foreach (var id in turma.IdMaterias)
             {
                 var materia = _materiaRepository.BuscaMateriaPeloId(id);
@@ -49,7 +55,7 @@ namespace ApiEscola.Services
                 return ResultadoDTO.ErroResultado("Não foi possível cadastrar a turma!");
             
             return ResultadoDTO.SucessoResultado(turma);
-
+            
         }
         
         /*
