@@ -20,8 +20,13 @@ namespace ApiEscola.Services
 
         public ResultadoDTO Cadastrar(Materia materia)
         {
-            if (_materiaRepository.BuscaMateriaPeloNome(materia.Nome))
+            
+            /*if (_materiaRepository.BuscaMateriaPeloNome(materia.Nome))
                 return ResultadoDTO.ErroResultado("Já existe uma materia cadastrada com o nome informado!");
+            */
+
+            if (_materiaRepository.VerificaSeMateriaJaCadastrada(materia.Nome, materia.Id, materia.IdProfessor))
+                return ResultadoDTO.ErroResultado("Matéria já cadastrada para o professor informado!");
 
             var professor = _professorRepository.BuscaProfessorPeloId(materia.IdProfessor);
 
@@ -42,8 +47,8 @@ namespace ApiEscola.Services
             if (materiaAtual is null)
                 return ResultadoDTO.ErroResultado("Matéria não encontrada!");
 
-            if (_materiaRepository.VerificaSeMateriaJaCadastrada(materia.Nome, materia.Id))
-                return ResultadoDTO.ErroResultado("Já existe uma materia cadastrada com o nome informado!");
+            if (_materiaRepository.VerificaSeMateriaJaCadastrada(materia.Nome, materia.Id, materia.IdProfessor, true))
+                return ResultadoDTO.ErroResultado("Matéria já cadastrada para o professor informado!");
 
             var professor = _professorRepository.BuscaProfessorPeloId(materia.IdProfessor);
 

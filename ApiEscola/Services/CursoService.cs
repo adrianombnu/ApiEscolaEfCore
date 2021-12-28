@@ -62,6 +62,17 @@ namespace ApiEscola.Services
 
         }
 
+        public ResultadoDTO BuscaCursoPeloId(Guid id)
+        {
+            var curso = _cursoRepository.BuscaCursoPeloId(id);
+
+            if (curso is null)
+                return ResultadoDTO.ErroResultado("Curso não encontrado.");
+
+            return ResultadoDTO.SucessoResultado(curso);
+
+        }
+
         public IEnumerable<Curso> ListarCursos()
         {
             return _cursoRepository.ListarCursos();

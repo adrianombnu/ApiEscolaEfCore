@@ -15,8 +15,8 @@ namespace ApiEscola.Controllers
             _alunoService = alunoService;
         }
 
-        [HttpPost, Route("turmas")]
-        public IActionResult Cadastrar(AlunoDTO alunoDTO)
+        [HttpPost, Route("{idTurma}/alunos")]
+        public IActionResult Cadastrar(Guid idTurma, AlunoDTO alunoDTO)
         {
             alunoDTO.Validar();
 
@@ -25,9 +25,9 @@ namespace ApiEscola.Controllers
 
             try
             {
-                var aluno = new Aluno(alunoDTO.Nome, alunoDTO.Sobrenome, alunoDTO.DataNascimento, alunoDTO.Documento, alunoDTO.IdMaterias, alunoDTO.IdTurma);
+                var aluno = new Aluno(alunoDTO.Nome, alunoDTO.Sobrenome, alunoDTO.DataNascimento, alunoDTO.Documento, alunoDTO.IdMaterias);
 
-                return Created("", _alunoService.Cadastrar(aluno));
+                return Created("", _alunoService.Cadastrar(idTurma, aluno));
 
             }
             catch (Exception ex)

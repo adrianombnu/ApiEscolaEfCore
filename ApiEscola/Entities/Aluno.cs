@@ -5,25 +5,23 @@ namespace ApiEscola.Entities
 {
     public class Aluno : Pessoa
     {
-        public Aluno(string nome, string sobrenome, DateTime dataNascimento, string documento, List<Guid> idMaterias, Guid idTurma)
+        public Aluno(string nome, string sobrenome, DateTime dataNascimento, string documento, List<Guid> idMaterias)
         {
             Nome = nome;
             Sobrenome = sobrenome;
             DataNascimento = dataNascimento;
             Documento = documento;
             IdMaterias = idMaterias;
-            IdTurma = idTurma;
             Id = Guid.NewGuid();
         }
 
-        public Aluno(string nome, string sobrenome, DateTime dataNascimento, string documento, List<Guid> idMaterias, Guid idTurma, Guid id)
+        public Aluno(string nome, string sobrenome, DateTime dataNascimento, string documento, List<Guid> idMaterias, Guid id)
         {
             Nome = nome;
             Sobrenome = sobrenome;
             DataNascimento = dataNascimento;
             Documento = documento;
             IdMaterias = idMaterias;
-            IdTurma = idTurma;
             Id = id;
         }
 
@@ -32,7 +30,6 @@ namespace ApiEscola.Entities
         public DateTime DataNascimento { get; set; }
         public string Documento{ get; set; }
         public List<Guid> IdMaterias { get; set; }
-        public Guid IdTurma { get; set; }
 
     }
 }

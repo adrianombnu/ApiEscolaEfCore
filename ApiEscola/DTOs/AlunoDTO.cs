@@ -12,8 +12,7 @@ namespace ApiEscola.Entities
         public DateTime DataNascimento { get; set; }
         public string Documento{ get; set; }
         public List<Guid> IdMaterias { get; set; }
-        public Guid IdTurma { get; set; }
-
+        
         public override void Validar()
         {
             Regex rgx = new Regex(@"[^a-zA-Z\s]");
@@ -31,9 +30,6 @@ namespace ApiEscola.Entities
 
             if (DataNascimento.Date > DateTime.Now.Date || string.IsNullOrEmpty(DataNascimento.ToString()))
                 AddErros("Data de nascimento invalida");
-
-            if (IdTurma.ToString().Length <= 0)
-                AddErros("Turma não informada.");
 
             if (IdMaterias is null)
                 AddErros("Nenhuma materia foi informada.");

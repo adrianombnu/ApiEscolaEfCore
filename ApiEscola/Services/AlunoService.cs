@@ -18,12 +18,12 @@ namespace ApiEscola.Services
             _turmaRepository = turmaRepository;
         }
 
-        public ResultadoDTO Cadastrar(Aluno aluno)
+        public ResultadoDTO Cadastrar(Guid idTurma, Aluno aluno)
         {
-            if (_alunoRepository.VerificaSeAlunoJaCadastrado(aluno.Documento, aluno.IdTurma))
+            if (_alunoRepository.VerificaSeAlunoJaCadastrado(aluno.Documento, idTurma))
                 return ResultadoDTO.ErroResultado("Aluno já está matriculado na turma informada!");
 
-            var turma = _turmaRepository.BuscaTurmaPeloId(aluno.IdTurma);
+            var turma = _turmaRepository.BuscaTurmaPeloId(idTurma);
 
             if (turma is null)
                 return ResultadoDTO.ErroResultado("Turma não encontrada.");
@@ -43,7 +43,7 @@ namespace ApiEscola.Services
 
             }
 
-            if (!_alunoRepository.Cadastrar(aluno))
+            if (!_alunoRepository.Cadastrar(idTurma, aluno))
                 return ResultadoDTO.ErroResultado("Não foi possível cadastrar o aluno!");
 
             return ResultadoDTO.SucessoResultado(aluno);

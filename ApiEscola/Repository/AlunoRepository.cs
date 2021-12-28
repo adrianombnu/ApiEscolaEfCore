@@ -19,7 +19,7 @@ namespace ApiEscola.Services
 
         }
 
-        public bool Cadastrar(Aluno aluno)
+        public bool Cadastrar(Guid idTurma, Aluno aluno)
         {
             var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
             var retorno = false;
@@ -60,7 +60,7 @@ namespace ApiEscola.Services
                                                             (IDTURMA, IDALUNO)
                                                           VALUES(:IdTurma,:IdAluno)";
 
-                    commandAddTurmaAluno.Parameters.Add(new OracleParameter("IdTurma", aluno.IdTurma.ToString()));
+                    commandAddTurmaAluno.Parameters.Add(new OracleParameter("IdTurma", idTurma.ToString()));
                     commandAddTurmaAluno.Parameters.Add(new OracleParameter("IdAluno", aluno.Id.ToString()));
 
                     rows = commandAddTurmaAluno.ExecuteNonQuery();
@@ -128,7 +128,7 @@ namespace ApiEscola.Services
 
         }
 
-        public Aluno BuscarAlunoPeloId(Guid id)
+        public Aluno BuscarAlunoPeloId(Guid idAluno)
         {
             var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
             List<Guid> materias = new List<Guid>();
@@ -137,28 +137,28 @@ namespace ApiEscola.Services
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(@"select * from aluno where id = :id", conn);
+                using var cmd = new OracleCommand(@"select * from aluno where id = :idAluno", conn);
 
-                cmd.Parameters.Add(new OracleParameter("id", id.ToString()));
+                cmd.Parameters.Add(new OracleParameter("idAluno", idAluno.ToString()));
 
                 using (var reader = cmd.ExecuteReader())
                 {                 
                     while (reader.Read())
                     {
-                        using var cmdMaterias = new OracleCommand(@"select * from aluno_materia where idAluno = :id", conn);
+                        using var cmdMaterias = new OracleCommand(@"select * from aluno_materia where idAluno = :idAluno", conn);
 
-                        cmdMaterias.Parameters.Add(new OracleParameter("id", id.ToString()));
+                        cmdMaterias.Parameters.Add(new OracleParameter("idAluno", idAluno.ToString()));
 
                         using (var readerMaterias = cmdMaterias.ExecuteReader())
                         {
                             while (readerMaterias.Read())
                             {
-                                materias.Add(Guid.Parse(Convert.ToString(reader["idMateria"])));
+                                materias.Add(Guid.Parse(Convert.ToString(readerMaterias["idMateria"])));
 
                             }
                         }
 
-                        return new Aluno(Convert.ToString(reader["nome"]), Convert.ToString(reader["sobrenome"]), Convert.ToDateTime(reader["dataDeNascimento"]), Convert.ToString(reader["documento"]), materias, Guid.Parse(Convert.ToString(reader["idTurma"])));
+                        return new Aluno(Convert.ToString(reader["nome"]), Convert.ToString(reader["sobrenome"]), Convert.ToDateTime(reader["dataDeNascimento"]), Convert.ToString(reader["documento"]), materias);
 
                     }
                 }
@@ -189,10 +189,8 @@ namespace ApiEscola.Services
                 try
                 {
                     commandTurmaAluno.CommandText = @"DELETE FROM APPACADEMY.turma_aluno                                            
-                                          WHERE idTurma = :IdTurma
-                                            AND idAluno = :IdAluno)";
+                                                            WHERE idAluno = :IdAluno)";
 
-                    commandTurmaAluno.Parameters.Add(new OracleParameter("IdTurma", aluno.IdTurma.ToString()));
                     commandTurmaAluno.Parameters.Add(new OracleParameter("IdAluno", aluno.Id.ToString()));
 
                     var rows = commandTurmaAluno.ExecuteNonQuery();
