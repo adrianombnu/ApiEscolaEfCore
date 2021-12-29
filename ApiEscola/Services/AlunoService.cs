@@ -29,7 +29,7 @@ namespace ApiEscola.Services
             if (_alunoRepository.VerificaSeAlunoJaCadastrado(aluno.Documento, idTurma))
                 return ResultadoDTO.ErroResultado("Aluno já está matriculado na turma informada!");
 
-            var turma = _turmaRepository.BuscaTurmaPeloId(idTurma);
+            var turma = _turmaRepository.BuscarTurmaPeloId(idTurma);
 
             if (turma is null)
                 return ResultadoDTO.ErroResultado("Turma não encontrada.");

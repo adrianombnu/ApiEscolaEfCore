@@ -61,12 +61,12 @@ namespace ApiEscola.Repository
 
                 using var cmd = new OracleCommand(
                     @"UPDATE APPACADEMY.professor
-                        SET id = :id,
-                            nome = :Nome, 
-                            sobrenome = :Sobrenome,
-                            dataDeNascimento =: DataDeNascimento,
-                            documento = :Documento
-                      where id = :id", conn);
+                        SET ID = :Id,
+                            NOME = :Nome, 
+                            SOBRENOME = :Sobrenome,
+                            DATADENASCIMENTO =: DataDeNascimento,
+                            DOCUMENTO = :Documento
+                      WHERE ID = :Id", conn);
 
                 cmd.Parameters.Add(new OracleParameter("Id", professor.Id.ToString()));
                 cmd.Parameters.Add(new OracleParameter("Nome", professor.Nome));
@@ -94,7 +94,7 @@ namespace ApiEscola.Repository
 
                 using var cmd = new OracleCommand(
                     @"DELETE FROM APPACADEMY.professor                        
-                      WHERE id = :Id", conn);
+                      WHERE ID = :Id", conn);
 
                 cmd.Parameters.Add(new OracleParameter("Id", id.ToString()));
 
@@ -117,9 +117,9 @@ namespace ApiEscola.Repository
                 conn.Open();
 
 
-                using var cmd = new OracleCommand(@"select * from professor where documento = :documento", conn);
+                using var cmd = new OracleCommand(@"SELECT * FROM PROFESSOR WHERE DOCUMENTO = :Documento", conn);
 
-                cmd.Parameters.Add(new OracleParameter("documento", documento));
+                cmd.Parameters.Add(new OracleParameter("Documento", documento));
 
                 using var reader = cmd.ExecuteReader();
 
@@ -140,9 +140,9 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(@"select * from professor where id = :id", conn);
+                using var cmd = new OracleCommand(@"SELECT * FROM PROFESSOR WHERE ID = :Id", conn);
 
-                cmd.Parameters.Add(new OracleParameter("id", id.ToString()));
+                cmd.Parameters.Add(new OracleParameter("Id", id.ToString()));
 
                 using (var reader = cmd.ExecuteReader())
                 {
@@ -168,9 +168,9 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(@"SELECT * FROM professor p INNER JOIN materia m ON p.id = M.idProfessor WHERE p.ID  = :idProfessor", conn);
+                using var cmd = new OracleCommand(@"SELECT * FROM professor p INNER JOIN materia m ON p.id = M.idProfessor WHERE p.ID  = :IdProfessor", conn);
 
-                cmd.Parameters.Add(new OracleParameter("idProfessor", id.ToString()));
+                cmd.Parameters.Add(new OracleParameter("IdProfessor", id.ToString()));
 
                 using var reader = cmd.ExecuteReader();
 
@@ -191,10 +191,10 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(@"select * from professor where id <> :id and documento = :documento " , conn);
+                using var cmd = new OracleCommand(@"SELECT * FROM PROFESSOR WHERE ID <> :Id and DOCUMENTO = :Documento " , conn);
 
-                cmd.Parameters.Add(new OracleParameter("id", id.ToString()));
-                cmd.Parameters.Add(new OracleParameter("documento", documento));
+                cmd.Parameters.Add(new OracleParameter("Id", id.ToString()));
+                cmd.Parameters.Add(new OracleParameter("Documento", documento));
 
                 using var reader = cmd.ExecuteReader();
 
@@ -217,31 +217,31 @@ namespace ApiEscola.Repository
 
                 using var cmd = new OracleCommand();
 
-                var query = (@"select * from professor WHERE 1 = 1");
+                var query = (@"SELECT * FROM PROFESSOR WHERE 1 = 1");
 
                 var sb = new StringBuilder(query);
 
                 if (!string.IsNullOrEmpty(nome))
                 {
-                    sb.Append(" AND nome like '%' || :Nome || '%'");
+                    sb.Append(" AND NOME LIKE '%' || :Nome || '%'");
                     cmd.Parameters.Add(new OracleParameter("Nome", nome));
                 }
 
                 if (!string.IsNullOrEmpty(sobrenome))
                 {
-                    sb.Append(" AND sobrenome like '%' || :Sobrenome || '%'");
+                    sb.Append(" AND SOBRENOME LIKE '%' || :Sobrenome || '%'");
                     cmd.Parameters.Add(new OracleParameter("Sobrenome", sobrenome));
                 }
 
                 if (!string.IsNullOrEmpty(dataDeNascimento.ToString()))
                 {
-                    sb.Append(" AND to_char(dataDeNascimento,'dd/mm/rrrr') = :DataDeNascimento");
+                    sb.Append(" AND to_char(DATADENASCIMENTO,'dd/mm/rrrr') = :DataDeNascimento");
                     cmd.Parameters.Add(new OracleParameter("DataDeNascimento", dataDeNascimento.Value.ToString("dd/MM/yyyy")));
                 }
 
                 if (!string.IsNullOrEmpty(documento))
                 {
-                    sb.Append(" AND documento = :Documento");
+                    sb.Append(" AND DOCUMENTO = :Documento");
                     cmd.Parameters.Add(new OracleParameter("Documento", documento));
                 }
 

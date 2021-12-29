@@ -38,10 +38,49 @@ namespace ApiEscola.Controllers
             }
         }
 
+        [HttpPost, Route("{idTurma}/materias")]
+        public IActionResult AdicionarMaterias(Guid idTurma, TurmaMateriaDTO turmaMateriaDTO)
+        {
+            turmaMateriaDTO.Validar();
+
+            if (!turmaMateriaDTO.Valido)
+                return BadRequest(turmaMateriaDTO.Erros);
+
+            try
+            {
+                return Created("", _turmaService.AdicionarMaterias(idTurma, turmaMateriaDTO.IdMaterias));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Erro ao adicionar matéria: " + ex.Message);
+            }
+        }
+
+        [HttpDelete, Route("{idTurma}/materias")]
+        public IActionResult RemoverMaterias(Guid idTurma, TurmaMateriaDTO turmaMateriaDTO)
+        {
+            turmaMateriaDTO.Validar();
+
+            if (!turmaMateriaDTO.Valido)
+                return BadRequest(turmaMateriaDTO.Erros);
+
+            try
+            {
+                return Created("", _turmaService.RemoverMaterias(idTurma, turmaMateriaDTO.IdMaterias));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Erro ao remover materia: " + ex.Message);
+            }
+
+        }
+
         [HttpGet, Route("{id}/turmas")]
         public IActionResult Get(Guid id)
         {
-            return Ok(_turmaService.BuscaTurmaPeloId(id));
+            return Ok(_turmaService.BuscarTurmaPeloId(id));
 
         }
 

@@ -34,7 +34,7 @@ namespace ApiEscola.Services
                 return ResultadoDTO.ErroResultado("O prefessor informado não foi encontrado!");
 
             if (!_materiaRepository.Cadastrar(materia))
-                return ResultadoDTO.ErroResultado("Não foi possível cadastrar a materia!");
+                return ResultadoDTO.ErroResultado("Não foi possível cadastrar a matéria!");
 
             return ResultadoDTO.SucessoResultado(materia);
 
@@ -84,7 +84,7 @@ namespace ApiEscola.Services
             var materia = _materiaRepository.BuscaMateriaPeloId(id);
 
             if (materia is null)
-                return ResultadoDTO.ErroResultado("Materia não encontrada");
+                return ResultadoDTO.ErroResultado("Matéria não encontrada");
 
             return ResultadoDTO.SucessoResultado(materia);
 

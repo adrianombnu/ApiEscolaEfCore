@@ -41,7 +41,7 @@ namespace ApiEscola.Services
                 try
                 {
                     command.CommandText = @"INSERT INTO APPACADEMY.aluno
-                                            (id, nome, sobrenome, dataDeNascimento, documento)
+                                            (ID, NOME, SOBRENOME, DATADENASCIMENTO, DOCUMENTO)
                                           VALUES(:Id,:Nome,:Sobrenome, :DataDeNascimento,:Documento)";
 
                     command.Parameters.Add(new OracleParameter("Id", aluno.Id.ToString()));
@@ -76,11 +76,11 @@ namespace ApiEscola.Services
                         commandAddMateria.Transaction = transaction;
 
                         commandAddMateria.CommandText = @"INSERT INTO APPACADEMY.aluno_materia
-                                                            (IDALUNO, IDMATERIA)
-                                                          VALUES(:IdAluno,:IdMateria)";
+                                                            (IDALUNO, IDTURMAMATERIA)
+                                                          VALUES(:IdAluno,:IdTurmaMateria)";
 
                         commandAddMateria.Parameters.Add(new OracleParameter("IdAluno", aluno.Id.ToString()));
-                        commandAddMateria.Parameters.Add(new OracleParameter("IdMateria", id.ToString()));
+                        commandAddMateria.Parameters.Add(new OracleParameter("IdTurmaMateria", id.ToString()));
 
                         rows = commandAddMateria.ExecuteNonQuery();
 
@@ -143,23 +143,23 @@ namespace ApiEscola.Services
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(@"select * from aluno where id = :idAluno", conn);
+                using var cmd = new OracleCommand(@"SELECT * FROM ALUNO WHERE ID = :IdAluno", conn);
 
-                cmd.Parameters.Add(new OracleParameter("idAluno", idAluno.ToString()));
+                cmd.Parameters.Add(new OracleParameter("IdAluno", idAluno.ToString()));
 
                 using (var reader = cmd.ExecuteReader())
                 {                 
                     while (reader.Read())
                     {
-                        using var cmdMaterias = new OracleCommand(@"select * from aluno_materia where idAluno = :idAluno", conn);
+                        using var cmdMaterias = new OracleCommand(@"SELECT * FROM ALUNO_MATERIA WHERE IDALUNO = :IdAluno", conn);
 
-                        cmdMaterias.Parameters.Add(new OracleParameter("idAluno", idAluno.ToString()));
+                        cmdMaterias.Parameters.Add(new OracleParameter("IdAluno", idAluno.ToString()));
 
                         using (var readerMaterias = cmdMaterias.ExecuteReader())
                         {
                             while (readerMaterias.Read())
                             {
-                                materias.Add(Guid.Parse(Convert.ToString(readerMaterias["idMateria"])));
+                                materias.Add(Guid.Parse(Convert.ToString(readerMaterias["idTurmaMateria"])));
 
                             }
                         }
@@ -195,7 +195,7 @@ namespace ApiEscola.Services
                 try
                 {
                     commandTurmaAluno.CommandText = @"DELETE FROM APPACADEMY.turma_aluno                                            
-                                                            WHERE idAluno = :IdAluno)";
+                                                            WHERE IDALUNO = :IdAluno";
 
                     commandTurmaAluno.Parameters.Add(new OracleParameter("IdAluno", aluno.Id.ToString()));
 
@@ -210,11 +210,11 @@ namespace ApiEscola.Services
                         commandMateria.Transaction = transaction;
 
                         commandMateria.CommandText = @"DELETE FROM APPACADEMY.aluno_materia
-                                                             WHERE idAluno = :IdAluno
-                                                               AND idMateria = :IdMateria";
+                                                             WHERE IDALUNO = :IdAluno
+                                                               AND IDTURMAMATERIA = :IdTurmaMateria";
 
                         commandMateria.Parameters.Add(new OracleParameter("IdAluno", aluno.Id.ToString()));
-                        commandMateria.Parameters.Add(new OracleParameter("IdMateria", id.ToString()));
+                        commandMateria.Parameters.Add(new OracleParameter("IdTurmaMateria", id.ToString()));
 
                         rows = commandMateria.ExecuteNonQuery();
 
@@ -227,7 +227,7 @@ namespace ApiEscola.Services
                     commandAluno.Transaction = transaction;
 
                     commandAluno.CommandText = @"DELETE FROM APPACADEMY.aluno
-                                                       WHERE ID = :IdAluno)";
+                                                       WHERE ID = :IdAluno";
 
                     commandAluno.Parameters.Add(new OracleParameter("IdAluno", aluno.Id.ToString()));
 
@@ -294,17 +294,17 @@ namespace ApiEscola.Services
                 var sb = new StringBuilder(query);
 
                 if (!string.IsNullOrEmpty(nome))
-                    sb.Append(" AND nome like  '%' || :Nome || '%' ");
+                    sb.Append(" AND NOME LIKE '%' || :Nome || '%' ");
 
                 if (!string.IsNullOrEmpty(sobrenome))
-                    sb.Append(" AND sobrenome like '%' || :Sobrenome || '%' ");
+                    sb.Append(" AND SOBRENOME LIKE '%' || :Sobrenome || '%' ");
 
                 if (!string.IsNullOrEmpty(dataDeNascimento.ToString()))
-                    sb.Append(" AND to_char(dataDeNascimento,'dd/mm/rrrr') = :DataDeNascimento");
+                    sb.Append(" AND to_char(DATADENASCIMENTO,'dd/mm/rrrr') = :DataDeNascimento");
 
                 using var cmd = new OracleCommand(sb.ToString(),conn);
 
-                //Esse bind serve para que quando, for passado mais parametros do que o necessário para montar o comando, devido a ser criado de forma dinamica, vamos evitar que dê
+                //Esse bind serve para que quando, for passado mais parametros do que o necessário para montar o comando sql, devido a ser criado de forma dinamica, vamos evitar que dê
                 //problema de quantidade maior ou a menor
                 cmd.BindByName = true;
 
@@ -318,15 +318,15 @@ namespace ApiEscola.Services
                     {
                         List<Guid> materias = new List<Guid>();
 
-                        using var cmdMaterias = new OracleCommand(@"select * from aluno_materia where idAluno = :idAluno", conn);
+                        using var cmdMaterias = new OracleCommand(@"SELECT * FROM ALUNO_MATERIA WHERE IDALUNO = :IdAluno", conn);
 
-                        cmdMaterias.Parameters.Add(new OracleParameter("idAluno", Convert.ToString(reader["id"])));
+                        cmdMaterias.Parameters.Add(new OracleParameter("IdAluno", Convert.ToString(reader["id"])));
 
                         using (var readerMaterias = cmdMaterias.ExecuteReader())
                         {
                             while (readerMaterias.Read())
                             {
-                                materias.Add(Guid.Parse(Convert.ToString(readerMaterias["idMateria"])));
+                                materias.Add(Guid.Parse(Convert.ToString(readerMaterias["idTurmaMateria"])));
 
                             }
                         }

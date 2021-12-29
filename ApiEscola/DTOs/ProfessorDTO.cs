@@ -40,7 +40,7 @@ namespace ApiEscola.DTOs
                 AddErros("Documento contêm caracteres inválidos");
 
             if (string.IsNullOrEmpty(Documento))
-                AddErros("Data de nascimento não foi informada.");
+                AddErros("Documento não foi informado.");
 
             if (Documento.Length > 11)
                 AddErros("Documento somente pode conter até 11 caracteres.");

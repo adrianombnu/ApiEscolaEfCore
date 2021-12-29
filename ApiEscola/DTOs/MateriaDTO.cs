@@ -16,13 +16,13 @@ namespace ApiEscola.Entities
             Regex rgx = new Regex(@"[^a-zA-Z\s]");
 
             if (rgx.IsMatch(Nome))
-                AddErros("Nome da materia contêm caracteres inválidos");
+                AddErros("Nome da matéria contêm caracteres inválidos");
 
             if (string.IsNullOrEmpty(Nome))
-                AddErros("Nome da materia não foi informado.");
+                AddErros("Nome da matéria não foi informado.");
 
             if (Nome.Length > 150)
-                AddErros("Nome da materia somente pode conter até 150 caracteres.");
+                AddErros("Nome da matéria somente pode conter até 150 caracteres.");
 
             if (string.IsNullOrEmpty(IdProfessor.ToString()))
                 AddErros("Professor não informado.");

@@ -33,11 +33,11 @@ namespace ApiEscola.Repository
                 using var cmd = new OracleCommand(
                     @"INSERT INTO APPACADEMY.materia
                         (ID, NOME, IDPROFESSOR)
-                      VALUES(:Id,:Nome,:idProfessor)", conn);
+                      VALUES(:Id,:Nome,:IdProfessor)", conn);
 
                 cmd.Parameters.Add(new OracleParameter("Id", materia.Id.ToString()));
                 cmd.Parameters.Add(new OracleParameter("Nome", materia.Nome));
-                cmd.Parameters.Add(new OracleParameter("idProfessor", materia.IdProfessor.ToString()));
+                cmd.Parameters.Add(new OracleParameter("IdProfessor", materia.IdProfessor.ToString()));
 
                 var rows = cmd.ExecuteNonQuery();
 
@@ -59,10 +59,10 @@ namespace ApiEscola.Repository
 
                 using var cmd = new OracleCommand(
                     @"UPDATE APPACADEMY.materia
-                        SET id = :id,
-                            nome = :Nome, 
-                            idProfessor = :IdProfessor
-                      where id = :id", conn);
+                        SET ID = :id,
+                            NOME = :Nome, 
+                            IDPROFESSOR = :IdProfessor
+                      WHERE ID = :Id", conn);
 
                 cmd.Parameters.Add(new OracleParameter("Id", materia.Id.ToString()));
                 cmd.Parameters.Add(new OracleParameter("Nome", materia.Nome));
@@ -88,7 +88,7 @@ namespace ApiEscola.Repository
 
                 using var cmd = new OracleCommand(
                     @"DELETE FROM APPACADEMY.materia                        
-                      WHERE id = :Id", conn);
+                      WHERE ID = :Id", conn);
 
                 cmd.Parameters.Add(new OracleParameter("Id", id.ToString()));
 
@@ -109,9 +109,9 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(@"SELECT * FROM turma_materia tm WHERE tm.idmateria  = :idMateria", conn);
+                using var cmd = new OracleCommand(@"SELECT * FROM turma_materia tm WHERE tm.idmateria  = :IdMateria", conn);
 
-                cmd.Parameters.Add(new OracleParameter("idMateria", id.ToString()));
+                cmd.Parameters.Add(new OracleParameter("IdMateria", id.ToString()));
 
                 using var reader = cmd.ExecuteReader();
 
@@ -132,9 +132,9 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(@"select * from materia where id = :id", conn);
+                using var cmd = new OracleCommand(@"SELECT * FROM MATERIA WHERE ID = :Id", conn);
 
-                cmd.Parameters.Add(new OracleParameter("id", id.ToString()));
+                cmd.Parameters.Add(new OracleParameter("Id", id.ToString()));
 
                 using (var reader = cmd.ExecuteReader())
                 {
@@ -161,15 +161,15 @@ namespace ApiEscola.Repository
                 var comandoString = string.Empty;
 
                 if (consideraIdDifente)
-                    comandoString = @"select * from materia 
-                                        where id <> :IdMateria 
-                                            and nome = :NomeMateria 
-                                            and idProfessor = :IdProfessor";
+                    comandoString = @"SELECT * from materia 
+                                              WHERE ID <> :IdMateria 
+                                                AND NOME = :NomeMateria 
+                                                AND IDPROFESSOR = :IdProfessor";
 
                 else
-                    comandoString = @"select * from materia 
-                                        where nome = :NomeMateria 
-                                          and idProfessor = :IdProfessor";
+                    comandoString = @"SELECT * FROM materia 
+                                              WHERE NOME = :NomeMateria 
+                                                AND IDPROFESSOR = :IdProfessor";
 
                 using var cmd = new OracleCommand(comandoString, conn);
 
@@ -207,13 +207,13 @@ namespace ApiEscola.Repository
 
                 using var cmd = new OracleCommand();
 
-                var query = (@"select * from materia WHERE 1 = 1");
+                var query = (@"SELECT * FROM MATERIA WHERE 1 = 1");
 
                 var sb = new StringBuilder(query);
 
                 if (!string.IsNullOrEmpty(nome))
                 {
-                    sb.Append(" AND nome like '%' || :Nome || '%'");
+                    sb.Append(" AND NOME LIKE '%' || :Nome || '%'");
                     cmd.Parameters.Add(new OracleParameter("Nome", nome));
                 }
 

@@ -79,7 +79,7 @@ namespace ApiEscola.Controllers
         [HttpGet, Route("{id}/cursos")]
         public IActionResult Get(Guid id)
         {
-            return Ok(_cursoService.BuscaCursoPeloId(id));
+            return Ok(_cursoService.BuscarCursoPeloId(id));
 
         }
 

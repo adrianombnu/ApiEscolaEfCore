@@ -30,12 +30,12 @@ namespace ApiEscola.Services
 
         public ResultadoDTO AtualizarCurso(Curso curso)
         {
-            var cursoAtual = _cursoRepository.BuscaCursoPeloId(curso.Id);
+            var cursoAtual = _cursoRepository.BuscarCursoPeloId(curso.Id);
 
             if (cursoAtual is null)
                 return ResultadoDTO.ErroResultado("Curso não encontrado!");
 
-            if(_cursoRepository.VerificaSeCursoJaCadastrado(curso.Nome, curso.Descricao, curso.Id))
+            if(_cursoRepository.VerificaSeCursoJaCadastrado(curso.Nome, curso.Id))
                 return ResultadoDTO.ErroResultado("Já existe um curso cadastrado com os dados informados!");
 
             if (!_cursoRepository.AtualizarCurso(curso))
@@ -47,7 +47,7 @@ namespace ApiEscola.Services
 
         public ResultadoDTO RemoverCurso(Guid id)
         {
-            var curso = _cursoRepository.BuscaCursoPeloId(id);
+            var curso = _cursoRepository.BuscarCursoPeloId(id);
 
             if (curso is null)
                 return ResultadoDTO.ErroResultado("Curso não encontrado");
@@ -62,9 +62,9 @@ namespace ApiEscola.Services
 
         }
 
-        public ResultadoDTO BuscaCursoPeloId(Guid id)
+        public ResultadoDTO BuscarCursoPeloId(Guid id)
         {
-            var curso = _cursoRepository.BuscaCursoPeloId(id);
+            var curso = _cursoRepository.BuscarCursoPeloId(id);
 
             if (curso is null)
                 return ResultadoDTO.ErroResultado("Curso não encontrado.");

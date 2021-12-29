@@ -58,7 +58,7 @@ namespace ApiEscola.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest("Erro ao atualizar os dados da materia: " + ex.Message);
+                return BadRequest("Erro ao atualizar os dados da matéria: " + ex.Message);
             }
 
         }
