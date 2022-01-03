@@ -461,6 +461,7 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
+                /*
                 using var cmdTurma = new OracleCommand();
 
                 var query = (@"SELECT * FROM (SELECT ROWNUM AS RN, T.* FROM TURMA T WHERE 1 = 1");
@@ -492,6 +493,35 @@ namespace ApiEscola.Repository
 
                 cmdTurma.Connection = conn;
                 cmdTurma.CommandText = sb.ToString();
+                */
+
+                var query = (@"SELECT * FROM (SELECT ROWNUM AS RN, T.* FROM TURMA T WHERE 1 = 1");
+
+                var sb = new StringBuilder(query);
+
+                if (!string.IsNullOrEmpty(nome))
+                    sb.Append(" AND UPPER(T.NOME) LIKE '%' || :Nome || '%'");
+
+                if (!string.IsNullOrEmpty(dataInicio.ToString()))
+                    sb.Append(" AND to_char(T.DATAINICIO,'dd/mm/rrrr') = :DataInicio");
+
+                if (!string.IsNullOrEmpty(dataFim.ToString()))
+                    sb.Append(" AND to_char(T.DATAFIM,'dd/mm/rrrr') = :DataFim");
+
+                sb.Append(" ORDER BY ROWNUM) TURMAS");
+                sb.Append(" WHERE ROWNUM <= :Itens AND TURMAS.RN > (:Page -1) * :Itens");
+
+                using var cmdTurma = new OracleCommand(sb.ToString(), conn);
+
+                //Esse bind serve para que quando, for passado mais parametros do que o necessário para montar o comando sql, devido a ser criado de forma dinamica, vamos evitar que dê
+                //problema de quantidade maior ou a menor
+                cmdTurma.BindByName = true;
+
+                cmdTurma.Parameters.Add(new OracleParameter("Nome", nome.ToUpperIgnoreNull()));
+                cmdTurma.Parameters.Add(new OracleParameter("DataInicio", (dataInicio.HasValue ? dataInicio.Value.ToString("dd/MM/yyyy") : "null")));
+                cmdTurma.Parameters.Add(new OracleParameter("DataFim", (dataFim.HasValue ? dataFim.Value.ToString("dd/MM/yyyy") : "null")));
+                cmdTurma.Parameters.Add(new OracleParameter("Itens", itens));
+                cmdTurma.Parameters.Add(new OracleParameter("Page", page));
 
                 using (var readerTurma = cmdTurma.ExecuteReader())
                 {

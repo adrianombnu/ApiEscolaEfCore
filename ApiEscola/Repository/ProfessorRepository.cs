@@ -216,6 +216,7 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
+                /*
                 using var cmd = new OracleCommand();
 
                 var query = (@"SELECT * FROM (SELECT ROWNUM AS RN, P.* FROM PROFESSOR P WHERE 1 = 1");
@@ -253,6 +254,39 @@ namespace ApiEscola.Repository
 
                 cmd.Connection = conn;
                 cmd.CommandText = sb.ToString();
+                */
+
+                var query = (@"SELECT * FROM (SELECT ROWNUM AS RN, P.* FROM PROFESSOR P WHERE 1 = 1");
+
+                var sb = new StringBuilder(query);
+
+                if (!string.IsNullOrEmpty(nome))
+                    sb.Append(" AND UPPER(P.NOME) LIKE '%' || :Nome || '%' ");
+
+                if (!string.IsNullOrEmpty(sobrenome))
+                    sb.Append(" AND UPPER(P.SOBRENOME) LIKE '%' || :Sobrenome || '%' ");
+
+                if (!string.IsNullOrEmpty(dataDeNascimento.ToString()))
+                    sb.Append(" AND to_char(P.DATADENASCIMENTO,'dd/mm/rrrr') = :DataDeNascimento ");
+
+                if (!string.IsNullOrEmpty(documento))
+                    sb.Append(" AND P.DOCUMENTO = :Documento");
+
+                sb.Append(" ORDER BY ROWNUM) ALUNOS");
+                sb.Append(" WHERE ROWNUM <= :Itens AND ALUNOS.RN > (:Page -1) * :Itens");
+
+                using var cmd = new OracleCommand(sb.ToString(), conn);
+
+                //Esse bind serve para que quando, for passado mais parametros do que o necessário para montar o comando sql, devido a ser criado de forma dinamica, vamos evitar que dê
+                //problema de quantidade maior ou a menor
+                cmd.BindByName = true;
+
+                cmd.Parameters.Add(new OracleParameter("Nome", nome.ToUpperIgnoreNull()));
+                cmd.Parameters.Add(new OracleParameter("Sobrenome", sobrenome.ToUpperIgnoreNull()));
+                cmd.Parameters.Add(new OracleParameter("DataDeNascimento", (dataDeNascimento.HasValue ? dataDeNascimento.Value.ToString("dd/MM/yyyy") : "null")));
+                cmd.Parameters.Add(new OracleParameter("Documento", documento));
+                cmd.Parameters.Add(new OracleParameter("Itens", itens));
+                cmd.Parameters.Add(new OracleParameter("Page", page));
 
                 using (var reader = cmd.ExecuteReader())
                 {

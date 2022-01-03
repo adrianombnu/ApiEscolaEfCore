@@ -206,6 +206,7 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
+                /*
                 using var cmd = new OracleCommand();
 
                 var query = (@"SELECT * FROM (SELECT ROWNUM AS RN, M.* FROM MATERIA M WHERE 1 = 1");
@@ -225,6 +226,27 @@ namespace ApiEscola.Repository
 
                 cmd.Connection = conn;
                 cmd.CommandText = sb.ToString();
+                */
+
+                var query = (@"SELECT * FROM (SELECT ROWNUM AS RN, M.* FROM MATERIA M WHERE 1 = 1");
+
+                var sb = new StringBuilder(query);
+
+                if (!string.IsNullOrEmpty(nome))
+                    sb.Append(" AND UPPER(M.NOME) LIKE '%' || :Nome || '%'");
+
+                sb.Append(" ORDER BY ROWNUM) MATERIAS");
+                sb.Append(" WHERE ROWNUM <= :Itens AND MATERIAS.RN > (:Page -1) * :Itens");
+
+                using var cmd = new OracleCommand(sb.ToString(), conn);
+
+                //Esse bind serve para que quando, for passado mais parametros do que o necessário para montar o comando sql, devido a ser criado de forma dinamica, vamos evitar que dê
+                //problema de quantidade maior ou a menor
+                cmd.BindByName = true;
+
+                cmd.Parameters.Add(new OracleParameter("Nome", nome.ToUpperIgnoreNull()));
+                cmd.Parameters.Add(new OracleParameter("Itens", itens));
+                cmd.Parameters.Add(new OracleParameter("Page", page));
 
                 using (var reader = cmd.ExecuteReader())
                 {
