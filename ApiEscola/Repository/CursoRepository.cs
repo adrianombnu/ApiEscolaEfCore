@@ -1,4 +1,5 @@
 ﻿using ApiEscola.Entities;
+using ApiEscola.Extensions;
 using Microsoft.Extensions.Configuration;
 using Oracle.ManagedDataAccess.Client;
 using System;
@@ -210,21 +211,26 @@ namespace ApiEscola.Repository
 
                 using var cmd = new OracleCommand();
 
-                var query = (@"SELECT * FROM CURSO WHERE 1 = 1");
+                var query = (@"SELECT * FROM (SELECT ROWNUM AS RN, C.* FROM CURSO C WHERE 1 = 1");
 
                 var sb = new StringBuilder(query);
 
                 if (!string.IsNullOrEmpty(nome))
                 {
-                    sb.Append(" AND NOME LIKE '%' || :Nome || '%'");
-                    cmd.Parameters.Add(new OracleParameter("Nome", nome));
+                    sb.Append(" AND UPPER(C.NOME) LIKE '%' || :Nome || '%'");
+                    cmd.Parameters.Add(new OracleParameter("Nome", nome.ToUpperIgnoreNull()));
                 }
 
                 if (!string.IsNullOrEmpty(descricao))
                 {
-                    sb.Append(" AND DESCRICAO LIKE '%' || :Descricao || '%'");
-                    cmd.Parameters.Add(new OracleParameter("Descricao", descricao));
+                    sb.Append(" AND UPPER(C.DESCRICAO) LIKE '%' || :Descricao || '%'");
+                    cmd.Parameters.Add(new OracleParameter("Descricao", descricao.ToUpperIgnoreNull()));
                 }
+
+                sb.Append(" ORDER BY ROWNUM) CURSOS");
+                sb.Append(" WHERE ROWNUM <= :Itens AND CURSOS.RN > (:Page -1) * :Itens");
+                cmd.Parameters.Add(new OracleParameter("Itens", itens));
+                cmd.Parameters.Add(new OracleParameter("Page", page));
 
                 cmd.Connection = conn;
                 cmd.CommandText = sb.ToString();
@@ -241,7 +247,8 @@ namespace ApiEscola.Repository
                 }
             }
 
-            return _cursos.Skip((page - 1) * itens).Take(itens);
+            //return _cursos.Skip((page - 1) * itens).Take(itens);
+            return _cursos;
 
         }
 

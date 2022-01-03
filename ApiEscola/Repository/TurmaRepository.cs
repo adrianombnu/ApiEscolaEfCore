@@ -1,4 +1,5 @@
 ﻿using ApiEscola.Entities;
+using ApiEscola.Extensions;
 using Microsoft.Extensions.Configuration;
 using Oracle.ManagedDataAccess.Client;
 using System;
@@ -89,6 +90,64 @@ namespace ApiEscola.Repository
 
             return retorno;
 
+        }
+
+        public bool RomoverTurma(Guid id)
+        {
+            var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
+            var retorno = false;
+
+            using (var conn = new OracleConnection(conexao))
+            {
+                conn.Open();
+
+                using OracleCommand command = conn.CreateCommand();
+                OracleTransaction transaction;
+
+                // Start a local transaction
+                transaction = conn.BeginTransaction(IsolationLevel.ReadCommitted);
+                // Assign transaction object for a pending local transaction
+                command.Transaction = transaction;
+
+                try
+                {
+                    command.CommandText = @"DELETE FROM APPACADEMY.turma_materia
+                                                  WHERE IDTURMA = :IdTurma ";
+
+                    command.Parameters.Add(new OracleParameter("Id", id.ToString()));
+
+                    var rows = command.ExecuteNonQuery();
+
+                    if (rows == 0)
+                        throw new Exception("Não foi possível remover as matérias vinculadas a turma.");
+
+                    using OracleCommand commandAddMateria = conn.CreateCommand();
+                    commandAddMateria.Transaction = transaction;
+
+                    commandAddMateria.CommandText = @"DELETE FROM APPACADEMY.turma
+                                                            WHERE ID = :IdTurma ";
+
+                    commandAddMateria.Parameters.Add(new OracleParameter("IdTurma", id.ToString()));
+
+                    rows = commandAddMateria.ExecuteNonQuery();
+
+                    if (rows == 0)
+                        throw new Exception("Não foi possível remover a turma.");
+
+
+                    transaction.Commit();
+                    retorno = true;
+
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    retorno = false;
+                }
+
+            }
+
+            return retorno;
         }
 
         public bool AdicionarMaterias(Guid idTurma, List<Guid> idMaterias)
@@ -234,7 +293,7 @@ namespace ApiEscola.Repository
                 conn.Open();
 
                 using var cmd = new OracleCommand();
-                
+
                 cmd.Connection = conn;
                 cmd.BindByName = true;
 
@@ -258,6 +317,37 @@ namespace ApiEscola.Repository
             }
 
             return materiaVinculada;
+
+        }
+
+        public bool VerificaSePossuiAlunoVinculado(Guid idTurma)
+        {
+            var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
+            var retorno = false;
+
+            using (var conn = new OracleConnection(conexao))
+            {
+                conn.Open();
+
+                using var cmd = new OracleCommand(@"SELECT COUNT(ID) QUANTIDADE
+                                                                     FROM turma_materia tm
+                                                               INNER JOIN ALUNO_MATERIA am
+                                                                       ON tm.ID = am.IDTURMAMATERIA
+                                                                    WHERE tm.IDTURMA = :IdTurma ", conn);
+
+                cmd.Parameters.Add(new OracleParameter("IdTurma", idTurma.ToString()));
+
+                using var reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    if (Convert.ToInt32(reader["quantidade"]) > 0)
+                        retorno = true;
+                }
+
+            }
+
+            return retorno;
 
         }
 
@@ -373,27 +463,32 @@ namespace ApiEscola.Repository
 
                 using var cmdTurma = new OracleCommand();
 
-                var query = (@"SELECT * FROM TURMA WHERE 1 = 1");
+                var query = (@"SELECT * FROM (SELECT ROWNUM AS RN, T.* FROM TURMA T WHERE 1 = 1");
 
                 var sb = new StringBuilder(query);
 
                 if (!string.IsNullOrEmpty(nome))
                 {
-                    sb.Append(" AND NOME LIKE '%' || :Nome || '%'");
-                    cmdTurma.Parameters.Add(new OracleParameter("Nome", nome));
+                    sb.Append(" AND UPPER(T.NOME) LIKE '%' || :Nome || '%'");
+                    cmdTurma.Parameters.Add(new OracleParameter("Nome", nome.ToUpperIgnoreNull()));
                 }
 
                 if (!string.IsNullOrEmpty(dataInicio.ToString()))
                 {
-                    sb.Append(" AND to_char(DATAINICIO,'dd/mm/rrrr') = :DataInicio");
+                    sb.Append(" AND to_char(T.DATAINICIO,'dd/mm/rrrr') = :DataInicio");
                     cmdTurma.Parameters.Add(new OracleParameter("DataInicio", dataInicio.Value.ToString("dd/MM/yyyy")));
                 }
 
                 if (!string.IsNullOrEmpty(dataFim.ToString()))
                 {
-                    sb.Append(" AND to_char(DATAFIM,'dd/mm/rrrr') = :DataFim");
+                    sb.Append(" AND to_char(T.DATAFIM,'dd/mm/rrrr') = :DataFim");
                     cmdTurma.Parameters.Add(new OracleParameter("DataFim", dataFim.Value.ToString("dd/MM/yyyy")));
                 }
+
+                sb.Append(" ORDER BY ROWNUM) TURMAS");
+                sb.Append(" WHERE ROWNUM <= :Itens AND TURMAS.RN > (:Page -1) * :Itens");
+                cmdTurma.Parameters.Add(new OracleParameter("Itens", itens));
+                cmdTurma.Parameters.Add(new OracleParameter("Page", page));
 
                 cmdTurma.Connection = conn;
                 cmdTurma.CommandText = sb.ToString();
@@ -429,7 +524,8 @@ namespace ApiEscola.Repository
                 }
             }
 
-            return _turmas.Skip((page - 1) * itens).Take(itens); ;
+            //return _turmas.Skip((page - 1) * itens).Take(itens);
+            return _turmas;
         }
 
     }

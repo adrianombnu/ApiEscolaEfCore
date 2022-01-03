@@ -38,6 +38,18 @@ namespace ApiEscola.Controllers
             }
         }
 
+        [HttpDelete, Route("{id}/turmas")]
+        public IActionResult RemoverTurma(Guid id)
+        {
+            var result = _turmaService.RemoverTurma(id);
+
+            if (!result.Sucesso)
+                return BadRequest(result);
+            else
+                return Ok(result);
+
+        }
+
         [HttpPost, Route("{idTurma}/materias")]
         public IActionResult AdicionarMaterias(Guid idTurma, TurmaMateriaDTO turmaMateriaDTO)
         {

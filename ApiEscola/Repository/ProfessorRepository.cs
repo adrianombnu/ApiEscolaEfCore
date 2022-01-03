@@ -1,4 +1,5 @@
 ﻿using ApiEscola.Entities;
+using ApiEscola.Extensions;
 using Microsoft.Extensions.Configuration;
 using Oracle.ManagedDataAccess.Client;
 using System;
@@ -217,33 +218,38 @@ namespace ApiEscola.Repository
 
                 using var cmd = new OracleCommand();
 
-                var query = (@"SELECT * FROM PROFESSOR WHERE 1 = 1");
+                var query = (@"SELECT * FROM (SELECT ROWNUM AS RN, P.* FROM PROFESSOR P WHERE 1 = 1");
 
                 var sb = new StringBuilder(query);
 
                 if (!string.IsNullOrEmpty(nome))
                 {
-                    sb.Append(" AND NOME LIKE '%' || :Nome || '%'");
-                    cmd.Parameters.Add(new OracleParameter("Nome", nome));
+                    sb.Append(" AND UPPER(P.NOME) LIKE '%' || :Nome || '%'");
+                    cmd.Parameters.Add(new OracleParameter("Nome", nome.ToUpperIgnoreNull()));
                 }
 
                 if (!string.IsNullOrEmpty(sobrenome))
                 {
-                    sb.Append(" AND SOBRENOME LIKE '%' || :Sobrenome || '%'");
-                    cmd.Parameters.Add(new OracleParameter("Sobrenome", sobrenome));
+                    sb.Append(" AND UPPER(P.SOBRENOME) LIKE '%' || :Sobrenome || '%'");
+                    cmd.Parameters.Add(new OracleParameter("Sobrenome", sobrenome.ToUpperIgnoreNull()));
                 }
 
                 if (!string.IsNullOrEmpty(dataDeNascimento.ToString()))
                 {
-                    sb.Append(" AND to_char(DATADENASCIMENTO,'dd/mm/rrrr') = :DataDeNascimento");
+                    sb.Append(" AND to_char(P.DATADENASCIMENTO,'dd/mm/rrrr') = :DataDeNascimento");
                     cmd.Parameters.Add(new OracleParameter("DataDeNascimento", dataDeNascimento.Value.ToString("dd/MM/yyyy")));
                 }
 
                 if (!string.IsNullOrEmpty(documento))
                 {
-                    sb.Append(" AND DOCUMENTO = :Documento");
+                    sb.Append(" AND P.DOCUMENTO = :Documento");
                     cmd.Parameters.Add(new OracleParameter("Documento", documento));
                 }
+
+                sb.Append(" ORDER BY ROWNUM) PROFESSORES");
+                sb.Append(" WHERE ROWNUM <= :Itens AND PROFESSORES.RN > (:Page -1) * :Itens");
+                cmd.Parameters.Add(new OracleParameter("Itens", itens));
+                cmd.Parameters.Add(new OracleParameter("Page", page));
 
                 cmd.Connection = conn;
                 cmd.CommandText = sb.ToString();
@@ -260,7 +266,8 @@ namespace ApiEscola.Repository
                 }
             }
 
-            return _professores.Skip((page - 1) * itens).Take(itens);
+            //return _professores.Skip((page - 1) * itens).Take(itens);
+            return _professores;
 
         }
 

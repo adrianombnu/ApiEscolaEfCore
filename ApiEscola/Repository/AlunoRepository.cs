@@ -1,4 +1,5 @@
 ﻿using ApiEscola.Entities;
+using ApiEscola.Extensions;
 using Microsoft.Extensions.Configuration;
 using Oracle.ManagedDataAccess.Client;
 using System;
@@ -289,28 +290,33 @@ namespace ApiEscola.Services
                 cmd.CommandText = sb.ToString();    
                 */
 
-                var query = (@"select * from aluno WHERE 1 = 1");
+                var query = (@"SELECT * FROM (SELECT ROWNUM AS RN, A.* FROM ALUNO A WHERE 1 = 1");
 
                 var sb = new StringBuilder(query);
 
                 if (!string.IsNullOrEmpty(nome))
-                    sb.Append(" AND NOME LIKE '%' || :Nome || '%' ");
+                    sb.Append(" AND UPPER(A.NOME) LIKE '%' || :Nome || '%' ");
 
                 if (!string.IsNullOrEmpty(sobrenome))
-                    sb.Append(" AND SOBRENOME LIKE '%' || :Sobrenome || '%' ");
+                    sb.Append(" AND UPPER(A.SOBRENOME) LIKE '%' || :Sobrenome || '%' ");
 
                 if (!string.IsNullOrEmpty(dataDeNascimento.ToString()))
-                    sb.Append(" AND to_char(DATADENASCIMENTO,'dd/mm/rrrr') = :DataDeNascimento");
+                    sb.Append(" AND to_char(A.DATADENASCIMENTO,'dd/mm/rrrr') = :DataDeNascimento ");
 
+                sb.Append(" ORDER BY ROWNUM) ALUNOS");
+                sb.Append(" WHERE ROWNUM <= :Itens AND ALUNOS.RN > (:Page -1) * :Itens");
+                
                 using var cmd = new OracleCommand(sb.ToString(),conn);
 
                 //Esse bind serve para que quando, for passado mais parametros do que o necessário para montar o comando sql, devido a ser criado de forma dinamica, vamos evitar que dê
                 //problema de quantidade maior ou a menor
                 cmd.BindByName = true;
 
-                cmd.Parameters.Add(new OracleParameter("Nome", nome));
-                cmd.Parameters.Add(new OracleParameter("Sobrenome", sobrenome));
+                cmd.Parameters.Add(new OracleParameter("Nome", nome.ToUpperIgnoreNull()));
+                cmd.Parameters.Add(new OracleParameter("Sobrenome", sobrenome.ToUpperIgnoreNull()));
                 cmd.Parameters.Add(new OracleParameter("DataDeNascimento", (dataDeNascimento.HasValue ? dataDeNascimento.Value.ToString("dd/MM/yyyy") : "null")));
+                cmd.Parameters.Add(new OracleParameter("Itens", itens));
+                cmd.Parameters.Add(new OracleParameter("Page", page));
 
                 using (var reader = cmd.ExecuteReader())
                 {
@@ -321,7 +327,7 @@ namespace ApiEscola.Services
                         using var cmdMaterias = new OracleCommand(@"SELECT * FROM ALUNO_MATERIA WHERE IDALUNO = :IdAluno", conn);
 
                         cmdMaterias.Parameters.Add(new OracleParameter("IdAluno", Convert.ToString(reader["id"])));
-
+                        
                         using (var readerMaterias = cmdMaterias.ExecuteReader())
                         {
                             while (readerMaterias.Read())
@@ -339,7 +345,8 @@ namespace ApiEscola.Services
                 }
             }
 
-            return _alunos.Skip((page - 1) * itens).Take(itens);
+            //return _alunos.Skip((page - 1) * itens).Take(itens);
+            return _alunos;
 
         }
 

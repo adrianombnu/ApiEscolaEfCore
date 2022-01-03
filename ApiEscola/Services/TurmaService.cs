@@ -64,6 +64,23 @@ namespace ApiEscola.Services
             
         }
 
+        public ResultadoDTO RemoverTurma(Guid id)
+        {
+            var turma = _turmaRepository.BuscarTurmaPeloId(id);
+
+            if (turma is null)
+                return ResultadoDTO.ErroResultado("Turma não encontrada");
+
+            if (_turmaRepository.VerificaSePossuiAlunoVinculado(id))
+                return ResultadoDTO.ErroResultado("Existem alunos vinculados a esta turma, favor remove-los");
+
+            if (_turmaRepository.RomoverTurma(id))
+                return ResultadoDTO.SucessoResultado();
+            else
+                return ResultadoDTO.ErroResultado("Erro ao remover a turma");
+
+        }
+
         public ResultadoDTO AdicionarMaterias(Guid idTurma, List<Guid> idMaterias)
         {
             var LimiteMaximoDeMateriasPorTurma = _configuration.GetValue<int>("LimiteMaximoDeMateriasPorTurma");
