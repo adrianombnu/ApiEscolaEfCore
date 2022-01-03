@@ -137,6 +137,34 @@ namespace ApiEscola.Services
 
         }
 
+        public ResultadoDTO BuscarAlunos(Guid idTurma)
+        {
+            var turma = _turmaRepository.BuscarTurmaPeloId(idTurma);
+
+            if (turma is null)
+                return ResultadoDTO.ErroResultado("Turma não encontrada");
+
+            var alunos = _turmaRepository.BuscarAlunos(idTurma);
+
+            var turmaAlunos = new TurmaAlunoDTO
+            {
+                DataInicio = turma.DataInicio,
+                DataFim = turma.DataFim,
+                IdCurso = turma.IdCurso,
+                Nome = turma.Nome
+            };
+
+            foreach (var aluno in alunos)
+            {
+                turmaAlunos.Alunos ??= new List<Aluno>();
+                turmaAlunos.Alunos.Add(aluno);
+            }
+
+            return ResultadoDTO.SucessoResultado(turmaAlunos);
+
+        }
+
+
         public ResultadoDTO BuscarTurmaPeloId(Guid id)
         {
             var turma = _turmaRepository.BuscarTurmaPeloId(id);

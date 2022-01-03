@@ -89,6 +89,13 @@ namespace ApiEscola.Controllers
 
         }
 
+        [HttpGet, Route("{idTurma}/turmas/alunos")]
+        public IActionResult BuscarAlunos(Guid idTurma)
+        {
+            return Ok(_turmaService.BuscarAlunos(idTurma));
+
+        }
+
         [HttpGet, Route("{id}/turmas")]
         public IActionResult Get(Guid id)
         {

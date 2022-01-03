@@ -15,6 +15,7 @@ namespace ApiEscola.Repository
         private readonly IConfiguration _configuration;
         private List<Guid> _materiasCurso;
         private List<Turma> _turmas;
+        private List<Aluno> _alunos;
 
         public TurmaRepository(IConfiguration configuration)
         {
@@ -453,6 +454,72 @@ namespace ApiEscola.Repository
 
         }
 
+        public IEnumerable<Aluno> BuscarAlunos(Guid idTurma)
+        {
+            var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
+            
+            using (var conn = new OracleConnection(conexao))
+            {
+                conn.Open();
+
+                using var cmd = new OracleCommand(@"SELECT DISTINCT am.IDALUNO ,
+                                                                    AL.* 
+                                                      FROM turma a
+                                                     inner JOIN TURMA_MATERIA tm
+                                                            ON a.ID = tm.IDTURMA
+                                                     inner JOIN materia M
+                                                            ON M.ID = tm.IDMATERIA
+                                                     inner JOIN ALUNO_MATERIA am
+                                                            ON am.IDTURMAMATERIA = tm.ID
+                                                     inner JOIN aluno AL
+                                                           ON AL.ID = am.IDALUNO
+                                                     WHERE a.ID = :IdTurma", conn);
+
+                cmd.Parameters.Add(new OracleParameter("IdTurma", idTurma.ToString()));
+
+                using var reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    _alunos ??= new List<Aluno>();
+
+                    //buscar materias da turma
+                    using var cmdMateriasCurso = new OracleCommand(@"SELECT am.IDTURMAMATERIA 
+                                                                      FROM turma a
+                                                                     inner JOIN TURMA_MATERIA tm 
+                                                                            ON a.ID = tm.IDTURMA
+                                                                     inner JOIN ALUNO_MATERIA am 
+                                                                            ON am.IDTURMAMATERIA = tm.ID
+                                                                     inner JOIN aluno AL 
+	                                                                       ON AL.ID = am.IDALUNO	 
+	                                                                 WHERE tm.IDTURMA = :IdTurma
+                                                                       AND AL.ID = :IdAluno", conn);
+
+                    cmdMateriasCurso.Parameters.Add(new OracleParameter("IdTurma", idTurma.ToString()));
+                    cmdMateriasCurso.Parameters.Add(new OracleParameter("IdAluno", reader["ID"].ToString()));
+
+                    _materiasCurso = new List<Guid>();
+
+                    using (var readerMateriasCurso = cmdMateriasCurso.ExecuteReader())
+                    {
+                        while (readerMateriasCurso.Read())
+                        {
+                            _materiasCurso.Add(Guid.Parse(Convert.ToString(readerMateriasCurso["IDTURMAMATERIA"])));
+
+                        }
+                    }
+
+                    var aluno = new Aluno(Convert.ToString(reader["nome"]), Convert.ToString(reader["sobrenome"]), Convert.ToDateTime(reader["dataDeNascimento"]), Convert.ToString(reader["documento"]), _materiasCurso, Guid.Parse(Convert.ToString(reader["id"])));
+
+                    _alunos.Add(aluno);
+                }
+
+            }
+
+            return _alunos;
+
+        }
+
         public IEnumerable<Turma> ListarTurmas(string? nome = null, DateTime? dataInicio = null, DateTime? dataFim = null, int page = 1, int itens = 50)
         {
             var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
@@ -552,6 +619,7 @@ namespace ApiEscola.Repository
                     }
 
                 }
+
             }
 
             //return _turmas.Skip((page - 1) * itens).Take(itens);
