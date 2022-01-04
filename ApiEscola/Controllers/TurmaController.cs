@@ -89,6 +89,33 @@ namespace ApiEscola.Controllers
 
         }
 
+        [HttpPut, Route("{idTurma}/turmas")]
+        public IActionResult Atualizar(Guid idTurma, AtualizarTurmaDTO turmaDTO)
+        {
+            turmaDTO.Validar();
+
+            if (!turmaDTO.Valido)
+                return BadRequest(turmaDTO.Erros);
+
+            try
+            {
+                var turma = new Turma(turmaDTO.Nome, turmaDTO.DataInicio, turmaDTO.DataFim, null, idTurma, turmaDTO.IdCurso);
+                                        
+                var result = _turmaService.AtualizarTurma(turma);
+
+                if (!result.Sucesso)
+                    return BadRequest(result);
+                else
+                    return Ok(result);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Erro ao atualizar os dados da matéria: " + ex.Message);
+            }
+
+        }
+
         [HttpGet, Route("{idTurma}/turmas/alunos")]
         public IActionResult BuscarAlunos(Guid idTurma)
         {

@@ -60,7 +60,7 @@ namespace ApiEscola.Repository
 
                 using var cmd = new OracleCommand(
                     @"UPDATE APPACADEMY.materia
-                        SET ID = :id,
+                        SET ID = :Id,
                             NOME = :Nome, 
                             IDPROFESSOR = :IdProfessor
                       WHERE ID = :Id", conn);
@@ -87,9 +87,8 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(
-                    @"DELETE FROM APPACADEMY.materia                        
-                      WHERE ID = :Id", conn);
+                using var cmd = new OracleCommand(@"DELETE FROM APPACADEMY.materia                        
+                                                          WHERE ID = :Id", conn);
 
                 cmd.Parameters.Add(new OracleParameter("Id", id.ToString()));
 
@@ -110,7 +109,8 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(@"SELECT * FROM turma_materia tm WHERE tm.idmateria  = :IdMateria", conn);
+                using var cmd = new OracleCommand(@"SELECT * FROM turma_materia tm 
+                                                            WHERE tm.idmateria = :IdMateria", conn);
 
                 cmd.Parameters.Add(new OracleParameter("IdMateria", id.ToString()));
 
@@ -159,33 +159,26 @@ namespace ApiEscola.Repository
             using (var conn = new OracleConnection(conexao))
             {
                 conn.Open();
-                var comandoString = string.Empty;
+
+                var query = (@"SELECT * FROM MATERIA M WHERE 1 = 1");
+
+                var sb = new StringBuilder(query);
+
+                sb.Append(" AND UPPER(M.NOME) = :NomeMateria ");
+                sb.Append(" AND M.IDPROFESSOR = :IdProfessor ");
 
                 if (consideraIdDifente)
-                    comandoString = @"SELECT * from materia 
-                                              WHERE ID <> :IdMateria 
-                                                AND NOME = :NomeMateria 
-                                                AND IDPROFESSOR = :IdProfessor";
+                    sb.Append(" AND M.ID <> :IdMateria ");
 
-                else
-                    comandoString = @"SELECT * FROM materia 
-                                              WHERE NOME = :NomeMateria 
-                                                AND IDPROFESSOR = :IdProfessor";
+                using var cmd = new OracleCommand(sb.ToString(), conn);
 
-                using var cmd = new OracleCommand(comandoString, conn);
+                //Esse bind serve para que quando, for passado mais parametros do que o necessário para montar o comando sql, devido a ser criado de forma dinamica, vamos evitar que dê
+                //problema de quantidade maior ou a menor
+                cmd.BindByName = true;
 
-                if (consideraIdDifente)
-                {
-                    cmd.Parameters.Add(new OracleParameter("IdMateria", idMateria.ToString()));
-                    cmd.Parameters.Add(new OracleParameter("NomeMateria", nomeMateria));
-                    cmd.Parameters.Add(new OracleParameter("IdProfessor", idProfessor.ToString()));
-
-                }
-                else
-                {
-                    cmd.Parameters.Add(new OracleParameter("NomeMateria", nomeMateria));
-                    cmd.Parameters.Add(new OracleParameter("IdProfessor", idProfessor.ToString()));
-                }
+                cmd.Parameters.Add(new OracleParameter("IdMateria", idMateria.ToString()));
+                cmd.Parameters.Add(new OracleParameter("NomeMateria", nomeMateria.ToUpperIgnoreNull()));
+                cmd.Parameters.Add(new OracleParameter("IdProfessor", idProfessor.ToString()));
 
                 using var reader = cmd.ExecuteReader();
 

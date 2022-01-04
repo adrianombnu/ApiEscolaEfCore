@@ -31,10 +31,9 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(
-                    @"INSERT INTO APPACADEMY.PROFESSOR
-                        (ID, NOME, SOBRENOME, DATADENASCIMENTO, DOCUMENTO)
-                      VALUES(:Id,:Nome,:Sobrenome, :DataDeNascimento,:Documento)", conn);
+                using var cmd = new OracleCommand(@"INSERT INTO APPACADEMY.PROFESSOR
+                                                    (ID, NOME, SOBRENOME, DATADENASCIMENTO, DOCUMENTO)
+                                                    VALUES(:Id,:Nome,:Sobrenome, :DataDeNascimento,:Documento)", conn);
 
                 cmd.Parameters.Add(new OracleParameter("Id", professor.Id.ToString()));
                 cmd.Parameters.Add(new OracleParameter("Nome", professor.Nome));
@@ -60,14 +59,13 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(
-                    @"UPDATE APPACADEMY.professor
-                        SET ID = :Id,
-                            NOME = :Nome, 
-                            SOBRENOME = :Sobrenome,
-                            DATADENASCIMENTO =: DataDeNascimento,
-                            DOCUMENTO = :Documento
-                      WHERE ID = :Id", conn);
+                using var cmd = new OracleCommand(@"UPDATE APPACADEMY.professor
+                                                       SET ID = :Id,
+                                                           NOME = :Nome, 
+                                                           SOBRENOME = :Sobrenome,
+                                                           DATADENASCIMENTO =: DataDeNascimento,
+                                                           DOCUMENTO = :Documento
+                                                     WHERE ID = :Id", conn);
 
                 cmd.Parameters.Add(new OracleParameter("Id", professor.Id.ToString()));
                 cmd.Parameters.Add(new OracleParameter("Nome", professor.Nome));
@@ -93,9 +91,8 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(
-                    @"DELETE FROM APPACADEMY.professor                        
-                      WHERE ID = :Id", conn);
+                using var cmd = new OracleCommand(@"DELETE FROM APPACADEMY.professor                        
+                                                          WHERE ID = :Id", conn);
 
                 cmd.Parameters.Add(new OracleParameter("Id", id.ToString()));
 
@@ -118,7 +115,8 @@ namespace ApiEscola.Repository
                 conn.Open();
 
 
-                using var cmd = new OracleCommand(@"SELECT * FROM PROFESSOR WHERE DOCUMENTO = :Documento", conn);
+                using var cmd = new OracleCommand(@"SELECT * FROM PROFESSOR 
+                                                            WHERE DOCUMENTO = :Documento", conn);
 
                 cmd.Parameters.Add(new OracleParameter("Documento", documento));
 
@@ -169,7 +167,10 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(@"SELECT * FROM professor p INNER JOIN materia m ON p.id = M.idProfessor WHERE p.ID  = :IdProfessor", conn);
+                using var cmd = new OracleCommand(@"SELECT * FROM PROFESSOR P
+                                                       INNER JOIN MATERIA M 
+                                                               ON P.id = M.idProfessor 
+                                                            WHERE P.ID = :IdProfessor", conn);
 
                 cmd.Parameters.Add(new OracleParameter("IdProfessor", id.ToString()));
 
@@ -192,7 +193,9 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(@"SELECT * FROM PROFESSOR WHERE ID <> :Id and DOCUMENTO = :Documento " , conn);
+                using var cmd = new OracleCommand(@"SELECT * FROM PROFESSOR 
+                                                            WHERE ID <> :Id 
+                                                              AND DOCUMENTO = :Documento " , conn);
 
                 cmd.Parameters.Add(new OracleParameter("Id", id.ToString()));
                 cmd.Parameters.Add(new OracleParameter("Documento", documento));

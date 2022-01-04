@@ -115,11 +115,11 @@ namespace ApiEscola.Services
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(@"SELECT * FROM aluno a 
-                                                       INNER JOIN TURMA_ALUNO ta  
-                                                               ON a.ID = ta.IDALUNO 
-                                                            WHERE a.DOCUMENTO = :Documento 
-                                                              AND ta.IDTURMA = :IdTurma", conn);
+                using var cmd = new OracleCommand(@"SELECT * FROM ALUNO A 
+                                                       INNER JOIN TURMA_ALUNO TA
+                                                               ON A.ID = TA.IDALUNO 
+                                                            WHERE A.DOCUMENTO = :Documento 
+                                                              AND TA.IDTURMA = :IdTurma", conn);
 
                 cmd.Parameters.Add(new OracleParameter("Documento", documento));
                 cmd.Parameters.Add(new OracleParameter("IdTurma", idTurma.ToString()));
@@ -260,35 +260,6 @@ namespace ApiEscola.Services
             using (var conn = new OracleConnection(conexao))
             {
                 conn.Open();
-
-                /*
-                using var cmd = new OracleCommand();
-
-                var query = (@"select * from aluno WHERE 1 = 1");
-
-                var sb = new StringBuilder(query);
-
-                if (!string.IsNullOrEmpty(nome))
-                {
-                    sb.Append(" AND nome like  '%' || :Nome || '%' ");
-                    cmd.Parameters.Add(new OracleParameter("Nome", nome));
-                }
-
-                if (!string.IsNullOrEmpty(sobrenome))
-                {
-                    sb.Append(" AND sobrenome like '%' || :Sobrenome || '%' ");
-                    cmd.Parameters.Add(new OracleParameter("Sobrenome", sobrenome));
-                }
-
-                if (!string.IsNullOrEmpty(dataDeNascimento.ToString()))
-                {
-                    sb.Append(" AND to_char(dataDeNascimento,'dd/mm/rrrr') = :DataDeNascimento");
-                    cmd.Parameters.Add(new OracleParameter("DataDeNascimento", dataDeNascimento.Value.ToString("dd/MM/yyyy")));
-                }
-
-                cmd.Connection = conn;  
-                cmd.CommandText = sb.ToString();    
-                */
 
                 var query = (@"SELECT * FROM (SELECT ROWNUM AS RN, A.* FROM ALUNO A WHERE 1 = 1");
 

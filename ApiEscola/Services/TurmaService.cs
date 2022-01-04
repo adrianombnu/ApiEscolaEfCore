@@ -28,7 +28,7 @@ namespace ApiEscola.Services
             var LimiteMinimoDeMateriasPorTurma = _configuration.GetValue<int>("LimiteMinimoDeMateriasPorTurma");
             var LimiteMaximoDeMateriasPorTurma = _configuration.GetValue<int>("LimiteMaximoDeMateriasPorTurma");
 
-            if (_turmaRepository.BuscarTurmaPeloNome(turma.Nome))
+            if (_turmaRepository.BuscarTurmaPeloNome(turma.Nome, turma.Id))
                 return ResultadoDTO.ErroResultado("Já existe uma turma cadastrada com o nome informado!");
 
             var curso = _cursoRepository.BuscarCursoPeloId(turma.IdCurso);
@@ -62,6 +62,34 @@ namespace ApiEscola.Services
             
             return ResultadoDTO.SucessoResultado(turma);
             
+        }
+
+        public ResultadoDTO AtualizarTurma(Turma turma)
+        {
+            var turmaAtual = _turmaRepository.BuscarTurmaPeloId(turma.Id);
+
+            if (turmaAtual is null)
+                return ResultadoDTO.ErroResultado("Turma não encontrada!");
+
+            if (_turmaRepository.BuscarTurmaPeloNome(turma.Nome, turma.Id, true))
+                return ResultadoDTO.ErroResultado("Já existe uma turma cadastrada com o nome informado!");
+
+            var curso = _cursoRepository.BuscarCursoPeloId(turma.IdCurso);
+
+            if (curso is null)
+                return ResultadoDTO.ErroResultado("Curso não encontrado");
+
+            if (turma.DataInicio.Date < DateTime.Now.Date)
+                return ResultadoDTO.ErroResultado("Data de inicio não pode ser menor que " + DateTime.Now.Date.ToString("dd/MM/yyyy"));
+
+            if (turma.DataFim.Date < turma.DataInicio.Date)
+                return ResultadoDTO.ErroResultado("Data fim não pode ser menor que " + turma.DataInicio.Date.ToString("dd/MM/yyyy"));
+
+            if (!_turmaRepository.AtualizarTurma(turma))
+                return ResultadoDTO.ErroResultado("Não foi possível cadastrar a turma!");
+
+            return ResultadoDTO.SucessoResultado(turma);
+
         }
 
         public ResultadoDTO RemoverTurma(Guid id)

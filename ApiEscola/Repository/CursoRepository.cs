@@ -31,10 +31,9 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(
-                    @"INSERT INTO APPACADEMY.CURSO
-                        (ID, NOME, DESCRICAO)
-                      VALUES(:Id,:Nome,:Descricao)", conn);
+                using var cmd = new OracleCommand(@"INSERT INTO APPACADEMY.CURSO
+                                                    (ID, NOME, DESCRICAO)
+                                                  VALUES(:Id,:Nome,:Descricao)", conn);
 
                 cmd.Parameters.Add(new OracleParameter("Id", curso.Id.ToString()));
                 cmd.Parameters.Add(new OracleParameter("Nome", curso.Nome));
@@ -58,12 +57,11 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(
-                    @"UPDATE APPACADEMY.CURSO
-                        SET ID = :id,
-                            NOME = :Nome, 
-                            DESCRICAO = :Descricao
-                      WHERE ID = :Id", conn);
+                using var cmd = new OracleCommand(@"UPDATE APPACADEMY.CURSO
+                                                       SET ID = :Id,
+                                                           NOME = :Nome, 
+                                                           DESCRICAO = :Descricao
+                                                     WHERE ID = :Id", conn);
 
                 cmd.Parameters.Add(new OracleParameter("Id", curso.Id.ToString()));
                 cmd.Parameters.Add(new OracleParameter("Nome", curso.Nome));
@@ -87,9 +85,8 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(
-                    @"DELETE FROM APPACADEMY.CURSO                        
-                      WHERE ID = :Id", conn);
+                using var cmd = new OracleCommand(@"DELETE FROM APPACADEMY.CURSO                        
+                                                          WHERE ID = :Id", conn);
 
                 cmd.Parameters.Add(new OracleParameter("Id", id.ToString()));
 
@@ -111,9 +108,10 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(@"SELECT * FROM CURSO WHERE NOME = :Nome", conn);
+                using var cmd = new OracleCommand(@"SELECT * FROM CURSO 
+                                                            WHERE UPPER(NOME) = :Nome", conn);
 
-                cmd.Parameters.Add(new OracleParameter("Nome", nomeCurso));
+                cmd.Parameters.Add(new OracleParameter("Nome", nomeCurso.ToUpperIgnoreNull()));
 
                 using var reader = cmd.ExecuteReader();
 
@@ -135,9 +133,11 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(@"SELECT * FROM CURSO WHERE NOME = :Nome AND ID <> :Id", conn);
+                using var cmd = new OracleCommand(@"SELECT * FROM CURSO 
+                                                            WHERE UPPER(NOME) = :Nome 
+                                                              AND ID <> :Id", conn);
 
-                cmd.Parameters.Add(new OracleParameter("Nome", nomeCurso));
+                cmd.Parameters.Add(new OracleParameter("Nome", nomeCurso.ToUpperIgnoreNull()));
                 cmd.Parameters.Add(new OracleParameter("Id", id.ToString()));
 
                 using var reader = cmd.ExecuteReader();
@@ -186,7 +186,10 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(@"SELECT * FROM CURSO c INNER JOIN turma t ON c.ID = t.IDCURSO WHERE c.ID  = :IdCurso", conn);
+                using var cmd = new OracleCommand(@"SELECT * FROM CURSO C 
+                                                       INNER JOIN TURMA T 
+                                                               ON C.ID = T.IDCURSO 
+                                                            WHERE C.ID  = :IdCurso", conn);
 
                 cmd.Parameters.Add(new OracleParameter("IdCurso", id.ToString()));
 

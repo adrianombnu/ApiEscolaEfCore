@@ -93,6 +93,39 @@ namespace ApiEscola.Repository
 
         }
 
+        public bool AtualizarTurma(Turma turma)
+        {
+            var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
+            var retorno = false;
+
+            using (var conn = new OracleConnection(conexao))
+            {
+                conn.Open();
+
+                using var cmd = new OracleCommand(
+                    @"UPDATE APPACADEMY.turma
+                        SET ID = :Id,
+                            NOME = :Nome, 
+                            DATAINICIO = :DataInicio,
+                            DATAFIM = :DataFim,
+                            IDCURSO = :IdCurso
+                      WHERE ID = :Id", conn);
+
+                cmd.Parameters.Add(new OracleParameter("Id", turma.Id.ToString()));
+                cmd.Parameters.Add(new OracleParameter("Nome", turma.Nome));
+                cmd.Parameters.Add(new OracleParameter("DataInicio", turma.DataInicio));
+                cmd.Parameters.Add(new OracleParameter("DataFim", turma.DataFim));
+                cmd.Parameters.Add(new OracleParameter("IdCurso", turma.IdCurso.ToString()));
+
+                var rows = cmd.ExecuteNonQuery();
+
+                if (rows > 0)
+                    retorno = true;
+            }
+
+            return retorno;
+        }
+
         public bool RomoverTurma(Guid id)
         {
             var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
@@ -231,8 +264,8 @@ namespace ApiEscola.Repository
                         commandAddMateria.Transaction = transaction;
 
                         commandAddMateria.CommandText = @"DELETE FROM APPACADEMY.turma_materia
-                                                            WHERE IDTURMA = :IdTurma
-                                                              AND IDMATERIA = :IdMateria";
+                                                                WHERE IDTURMA = :IdTurma
+                                                                  AND IDMATERIA = :IdMateria";
 
                         commandAddMateria.Parameters.Add(new OracleParameter("IdTurma", idTurma.ToString()));
                         commandAddMateria.Parameters.Add(new OracleParameter("IdMateria", id.ToString()));
@@ -260,7 +293,7 @@ namespace ApiEscola.Repository
 
         }
 
-        public bool BuscarTurmaPeloNome(string nomeTurma)
+        public bool BuscarTurmaPeloNome(string nomeTurma, Guid idTurma, bool consideraIdDifente = false)
         {
             var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
             var cursoEncontrado = false;
@@ -269,11 +302,25 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(@"SELECT * FROM TURMA WHERE NOME = :Nome", conn);
+                var query = (@"SELECT * FROM TURMA T WHERE 1 = 1");
 
-                cmd.Parameters.Add(new OracleParameter("Nome", nomeTurma));
+                var sb = new StringBuilder(query);
 
-                using var reader = cmd.ExecuteReader();
+                sb.Append(" AND UPPER(T.NOME) = :Nome ");
+
+                if (consideraIdDifente)
+                    sb.Append(" AND T.ID <> :IdTurma ");
+
+                using var cmdTurma = new OracleCommand(sb.ToString(), conn);
+
+                //Esse bind serve para que quando, for passado mais parametros do que o necessário para montar o comando sql, devido a ser criado de forma dinamica, vamos evitar que dê
+                //problema de quantidade maior ou a menor
+                cmdTurma.BindByName = true;
+
+                cmdTurma.Parameters.Add(new OracleParameter("Nome", nomeTurma.ToUpperIgnoreNull()));
+                cmdTurma.Parameters.Add(new OracleParameter("IdTurma", idTurma.ToString()));
+
+                using var reader = cmdTurma.ExecuteReader();
 
                 if (reader.HasRows)
                     cursoEncontrado = true;
@@ -293,19 +340,19 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand();
+                var query = (@"SELECT * FROM TURMA_MATERIA TM
+                                        WHERE WHERE 1 = 1");
 
-                cmd.Connection = conn;
-                cmd.BindByName = true;
+                var sb = new StringBuilder(query);
+
+                sb.Append(" AND TM.IDTURMA = :IdTurma ");
 
                 if (verificarPorIdMateria)
-                    cmd.CommandText = @"SELECT * FROM turma_materia 
-                                                            WHERE IDTURMA = :IdTurma
-                                                              AND IDMATERIA = :IdMateria ";
+                    sb.Append(" AND TM.IDMATERIA = :IdMateria ");
                 else
-                    cmd.CommandText = @"SELECT * FROM turma_materia 
-                                                            WHERE IDTURMA = :IdTurma
-                                                              AND ID = :IdMateria ";
+                    sb.Append(" AND TM.ID = :IdMateria ");
+
+                using var cmd = new OracleCommand(sb.ToString(), conn);
 
                 cmd.Parameters.Add(new OracleParameter("IdTurma", idTurma.ToString()));
                 cmd.Parameters.Add(new OracleParameter("IdMateria", idMateria.ToString()));
@@ -402,7 +449,10 @@ namespace ApiEscola.Repository
                     while (reader.Read())
                     {
                         //buscar materias da turma
-                        using var cmdMateriasCurso = new OracleCommand(@"SELECT * FROM materia a WHERE a.ID IN (SELECT tm.IDMATERIA FROM turma_materia tm WHERE tm.IDTURMA = :IdTurma)", conn);
+                        using var cmdMateriasCurso = new OracleCommand(@"SELECT * FROM materia a 
+                                                                                 WHERE a.ID IN (SELECT tm.IDMATERIA 
+                                                                                                  FROM turma_materia tm 
+                                                                                                 WHERE tm.IDTURMA = :IdTurma)", conn);
 
                         cmdMateriasCurso.Parameters.Add(new OracleParameter("IdTurma", reader["id"].ToString()));
 
@@ -437,7 +487,9 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                using var cmd = new OracleCommand(@"SELECT COUNT(ID) QUANTIDADE FROM TURMA_MATERIA WHERE IDTURMA = :IdTurma", conn);
+                using var cmd = new OracleCommand(@"SELECT COUNT(ID) QUANTIDADE 
+                                                      FROM TURMA_MATERIA 
+                                                     WHERE IDTURMA = :IdTurma", conn);
 
                 cmd.Parameters.Add(new OracleParameter("IdTurma", idTurma.ToString()));
 
@@ -597,7 +649,9 @@ namespace ApiEscola.Repository
                     while (readerTurma.Read())
                     {
                         //buscar materias da turma
-                        using var cmdMateriasCurso = new OracleCommand(@"SELECT tm.ID FROM turma_materia tm WHERE tm.IDTURMA = :IdTurma", conn);
+                        using var cmdMateriasCurso = new OracleCommand(@"SELECT tm.ID 
+                                                                           FROM turma_materia tm 
+                                                                          WHERE tm.IDTURMA = :IdTurma", conn);
 
                         cmdMateriasCurso.Parameters.Add(new OracleParameter("IdTurma", readerTurma["id"].ToString()));
 
