@@ -8,6 +8,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 
+#nullable enable
 namespace ApiEscola.Services
 {
     public class AlunoRepository

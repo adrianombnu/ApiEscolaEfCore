@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using ApiEscola.Entities;
 using System;
 
+#nullable enable
 namespace ApiEscola.Controllers
 {
     [ApiController, Route("[controller]")]

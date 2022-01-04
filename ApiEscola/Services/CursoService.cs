@@ -4,6 +4,7 @@ using ApiEscola.Repository;
 using System;
 using System.Collections.Generic;
 
+#nullable enable
 namespace ApiEscola.Services
 {
     public class CursoService
