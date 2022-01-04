@@ -71,22 +71,44 @@ namespace ApiEscola.Services
                     if (rows == 0)
                         throw new Exception("Não foi possível vincular o aluno a turma.");
 
-                    foreach (var id in aluno.IdMaterias)
+                    foreach (var idMateria in aluno.IdMaterias)
                     {
-                        using OracleCommand commandAddMateria = conn.CreateCommand();
-                        commandAddMateria.Transaction = transaction;
+                        using OracleCommand commandConsultaTurmaMateria = conn.CreateCommand();
+                        commandConsultaTurmaMateria.Transaction = transaction;
 
-                        commandAddMateria.CommandText = @"INSERT INTO APPACADEMY.aluno_materia
-                                                            (IDALUNO, IDTURMAMATERIA)
-                                                          VALUES(:IdAluno,:IdTurmaMateria)";
+                        commandConsultaTurmaMateria.CommandText = @"SELECT * FROM TURMA_MATERIA TM
+                                                                            WHERE TM.IDTURMA = :IdTurma
+                                                                              AND TM.IDMATERIA = :IdMateria";
 
-                        commandAddMateria.Parameters.Add(new OracleParameter("IdAluno", aluno.Id.ToString()));
-                        commandAddMateria.Parameters.Add(new OracleParameter("IdTurmaMateria", id.ToString()));
+                        commandConsultaTurmaMateria.Parameters.Add(new OracleParameter("IdTurma", idTurma.ToString()));
+                        commandConsultaTurmaMateria.Parameters.Add(new OracleParameter("IdMateria", idMateria.ToString()));
 
-                        rows = commandAddMateria.ExecuteNonQuery();
+                        using (var readerConsultaTurmaMateria = commandConsultaTurmaMateria.ExecuteReader())
+                        {
+                            if (!readerConsultaTurmaMateria.HasRows)
+                                throw new Exception("Matéria não está vinculada a turma informada.");
 
-                        if (rows == 0)
-                            throw new Exception("Não foi possível vincular aluno a matéria.");
+                            while (readerConsultaTurmaMateria.Read())
+                            {
+                                var id = Convert.ToString(readerConsultaTurmaMateria["id"]);
+
+                                using OracleCommand commandAddMateria = conn.CreateCommand();
+                                commandAddMateria.Transaction = transaction;
+
+                                commandAddMateria.CommandText = @"INSERT INTO APPACADEMY.aluno_materia
+                                                                        (IDALUNO, IDTURMAMATERIA)
+                                                                      VALUES(:IdAluno,:IdTurmaMateria)";
+
+                                commandAddMateria.Parameters.Add(new OracleParameter("IdAluno", aluno.Id.ToString()));
+                                commandAddMateria.Parameters.Add(new OracleParameter("IdTurmaMateria", id.ToString()));
+
+                                rows = commandAddMateria.ExecuteNonQuery();
+
+                                if (rows == 0)
+                                    throw new Exception("Não foi possível vincular aluno a matéria.");
+
+                            }
+                        }
 
                     }
 
@@ -149,7 +171,7 @@ namespace ApiEscola.Services
                 cmd.Parameters.Add(new OracleParameter("IdAluno", idAluno.ToString()));
 
                 using (var reader = cmd.ExecuteReader())
-                {                 
+                {
                     while (reader.Read())
                     {
                         using var cmdMaterias = new OracleCommand(@"SELECT * FROM ALUNO_MATERIA WHERE IDALUNO = :IdAluno", conn);
@@ -256,7 +278,7 @@ namespace ApiEscola.Services
         public IEnumerable<Aluno> ListarAlunos(string? nome = null, string? sobrenome = null, DateTime? dataDeNascimento = null, int page = 1, int itens = 50)
         {
             var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
-            
+
             using (var conn = new OracleConnection(conexao))
             {
                 conn.Open();
@@ -276,8 +298,8 @@ namespace ApiEscola.Services
 
                 sb.Append(" ORDER BY ROWNUM) ALUNOS");
                 sb.Append(" WHERE ROWNUM <= :Itens AND ALUNOS.RN > (:Page -1) * :Itens");
-                
-                using var cmd = new OracleCommand(sb.ToString(),conn);
+
+                using var cmd = new OracleCommand(sb.ToString(), conn);
 
                 //Esse bind serve para que quando, for passado mais parametros do que o necessário para montar o comando sql, devido a ser criado de forma dinamica, vamos evitar que dê
                 //problema de quantidade maior ou a menor
@@ -298,7 +320,7 @@ namespace ApiEscola.Services
                         using var cmdMaterias = new OracleCommand(@"SELECT * FROM ALUNO_MATERIA WHERE IDALUNO = :IdAluno", conn);
 
                         cmdMaterias.Parameters.Add(new OracleParameter("IdAluno", Convert.ToString(reader["id"])));
-                        
+
                         using (var readerMaterias = cmdMaterias.ExecuteReader())
                         {
                             while (readerMaterias.Read())

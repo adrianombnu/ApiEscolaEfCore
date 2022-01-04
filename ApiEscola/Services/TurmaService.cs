@@ -126,7 +126,7 @@ namespace ApiEscola.Services
                 if (materia is null)
                     return ResultadoDTO.ErroResultado("Matéria informada não existe!");
 
-                if (_turmaRepository.VerificaVinculoMateriaComATurma(id, idTurma, true))
+                if (_turmaRepository.VerificaVinculoMateriaComATurma(id, idTurma))
                     return ResultadoDTO.ErroResultado("Matéria já cadastrada para a turma informada!");
 
             }
@@ -144,7 +144,7 @@ namespace ApiEscola.Services
 
             foreach (var id in idMaterias)
             {
-                if (!_turmaRepository.VerificaVinculoMateriaComATurma(id, idTurma, true))
+                if (!_turmaRepository.VerificaVinculoMateriaComATurma(id, idTurma))
                     return ResultadoDTO.ErroResultado("Matéria não vinculada com a turma informada!");
 
                 //verificar se tem aluno matriculado a materia 

@@ -331,7 +331,7 @@ namespace ApiEscola.Repository
 
         }
 
-        public bool VerificaVinculoMateriaComATurma(Guid idMateria, Guid idTurma, bool verificarPorIdMateria = false)
+        public bool VerificaVinculoMateriaComATurma(Guid idMateria, Guid idTurma)
         {
             var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
             var materiaVinculada = false;
@@ -341,18 +341,10 @@ namespace ApiEscola.Repository
                 conn.Open();
 
                 var query = (@"SELECT * FROM TURMA_MATERIA TM
-                                        WHERE WHERE 1 = 1");
+                                        WHERE TM.IDTURMA = :IdTurma 
+                                          AND TM.IDMATERIA = :IdMateria ");
 
-                var sb = new StringBuilder(query);
-
-                sb.Append(" AND TM.IDTURMA = :IdTurma ");
-
-                if (verificarPorIdMateria)
-                    sb.Append(" AND TM.IDMATERIA = :IdMateria ");
-                else
-                    sb.Append(" AND TM.ID = :IdMateria ");
-
-                using var cmd = new OracleCommand(sb.ToString(), conn);
+                using var cmd = new OracleCommand(query, conn);
 
                 cmd.Parameters.Add(new OracleParameter("IdTurma", idTurma.ToString()));
                 cmd.Parameters.Add(new OracleParameter("IdMateria", idMateria.ToString()));
@@ -536,7 +528,7 @@ namespace ApiEscola.Repository
                     _alunos ??= new List<Aluno>();
 
                     //buscar materias da turma
-                    using var cmdMateriasCurso = new OracleCommand(@"SELECT am.IDTURMAMATERIA 
+                    using var cmdMateriasCurso = new OracleCommand(@"SELECT tm.IDMATERIA
                                                                       FROM turma a
                                                                      inner JOIN TURMA_MATERIA tm 
                                                                             ON a.ID = tm.IDTURMA
@@ -556,7 +548,7 @@ namespace ApiEscola.Repository
                     {
                         while (readerMateriasCurso.Read())
                         {
-                            _materiasCurso.Add(Guid.Parse(Convert.ToString(readerMateriasCurso["IDTURMAMATERIA"])));
+                            _materiasCurso.Add(Guid.Parse(Convert.ToString(readerMateriasCurso["IDMATERIA"])));
 
                         }
                     }
@@ -579,40 +571,6 @@ namespace ApiEscola.Repository
             using (var conn = new OracleConnection(conexao))
             {
                 conn.Open();
-
-                /*
-                using var cmdTurma = new OracleCommand();
-
-                var query = (@"SELECT * FROM (SELECT ROWNUM AS RN, T.* FROM TURMA T WHERE 1 = 1");
-
-                var sb = new StringBuilder(query);
-
-                if (!string.IsNullOrEmpty(nome))
-                {
-                    sb.Append(" AND UPPER(T.NOME) LIKE '%' || :Nome || '%'");
-                    cmdTurma.Parameters.Add(new OracleParameter("Nome", nome.ToUpperIgnoreNull()));
-                }
-
-                if (!string.IsNullOrEmpty(dataInicio.ToString()))
-                {
-                    sb.Append(" AND to_char(T.DATAINICIO,'dd/mm/rrrr') = :DataInicio");
-                    cmdTurma.Parameters.Add(new OracleParameter("DataInicio", dataInicio.Value.ToString("dd/MM/yyyy")));
-                }
-
-                if (!string.IsNullOrEmpty(dataFim.ToString()))
-                {
-                    sb.Append(" AND to_char(T.DATAFIM,'dd/mm/rrrr') = :DataFim");
-                    cmdTurma.Parameters.Add(new OracleParameter("DataFim", dataFim.Value.ToString("dd/MM/yyyy")));
-                }
-
-                sb.Append(" ORDER BY ROWNUM) TURMAS");
-                sb.Append(" WHERE ROWNUM <= :Itens AND TURMAS.RN > (:Page -1) * :Itens");
-                cmdTurma.Parameters.Add(new OracleParameter("Itens", itens));
-                cmdTurma.Parameters.Add(new OracleParameter("Page", page));
-
-                cmdTurma.Connection = conn;
-                cmdTurma.CommandText = sb.ToString();
-                */
 
                 var query = (@"SELECT * FROM (SELECT ROWNUM AS RN, T.* FROM TURMA T WHERE 1 = 1");
 
@@ -649,7 +607,7 @@ namespace ApiEscola.Repository
                     while (readerTurma.Read())
                     {
                         //buscar materias da turma
-                        using var cmdMateriasCurso = new OracleCommand(@"SELECT tm.ID 
+                        using var cmdMateriasCurso = new OracleCommand(@"SELECT tm.IDMATERIA 
                                                                            FROM turma_materia tm 
                                                                           WHERE tm.IDTURMA = :IdTurma", conn);
 
@@ -661,7 +619,7 @@ namespace ApiEscola.Repository
 
                             while (readerMateriasCurso.Read())
                             {
-                                _materiasCurso.Add(Guid.Parse(Convert.ToString(readerMateriasCurso["id"])));
+                                _materiasCurso.Add(Guid.Parse(Convert.ToString(readerMateriasCurso["idmateria"])));
 
                             }
                         }
