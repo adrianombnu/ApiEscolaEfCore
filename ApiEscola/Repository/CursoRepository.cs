@@ -240,7 +240,10 @@ namespace ApiEscola.Repository
                 cmd.CommandText = sb.ToString();
                 */
 
-                var query = (@"SELECT * FROM (SELECT ROWNUM AS RN, C.* FROM CURSO C WHERE 1 = 1");
+                var query = (@"SELECT * FROM (SELECT ROW_NUMBER() OVER (ORDER BY ROWID) AS RN,
+                                                     C.* 
+                                                FROM CURSO C 
+                                               WHERE 1 = 1");
 
                 var sb = new StringBuilder(query);
 
@@ -250,7 +253,7 @@ namespace ApiEscola.Repository
                 if (!string.IsNullOrEmpty(descricao))
                     sb.Append(" AND UPPER(C.DESCRICAO) LIKE '%' || :Descricao || '%'");
 
-                sb.Append(" ORDER BY ROWNUM) CURSOS");
+                sb.Append(" ) CURSOS");
                 sb.Append(" WHERE ROWNUM <= :Itens AND CURSOS.RN > (:Page -1) * :Itens");
 
                 using var cmd = new OracleCommand(sb.ToString(), conn);

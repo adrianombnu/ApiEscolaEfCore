@@ -79,9 +79,47 @@ namespace ApiEscola.Services
 
         }
 
-        public IEnumerable<Aluno> ListarAlunos(string? nome = null, string? sobrenome = null, DateTime? dataDeNascimento = null, int page = 1, int itens = 50)
+        public ResultadoDTO ListarAlunos(string? nome = null, string? sobrenome = null, DateTime? dataDeNascimento = null, int page = 1, int itens = 50)
         {
-            return _alunoRepository.ListarAlunos(nome, sobrenome,dataDeNascimento, page, itens);
+            var listaAlunos = _alunoRepository.ListarAlunos(nome, sobrenome,dataDeNascimento, page, itens);
+
+            var listaRetorno = new List<RetornoAlunoDTO>();
+            
+            foreach (var aluno in listaAlunos)
+            {
+                var alunoRetorno = new RetornoAlunoDTO
+                {
+                    DataNascimento = aluno.DataNascimento,
+                    Documento = aluno.Documento,
+                    Sobrenome = aluno.Sobrenome,
+                    Nome = aluno.Nome,
+                    Id = aluno.Id
+                };
+
+                foreach (var materia in aluno.IdMaterias)
+                {
+                    alunoRetorno.Materias ??= new List<RetornoMateriaDTO>();
+
+                    var materiaRetorno = _materiaRepository.BuscaMateriaPeloId(materia);
+
+                    if (materiaRetorno is null)
+                        return ResultadoDTO.ErroResultado("Materia não encontrada!");
+
+                    var materiaRetornoDTO = new RetornoMateriaDTO
+                    {
+                        Id = materiaRetorno.Id,
+                        Nome = materiaRetorno.Nome
+                    };
+
+                    alunoRetorno.Materias.Add(materiaRetornoDTO);
+
+                }
+
+                listaRetorno.Add(alunoRetorno);
+
+            }
+
+            return ResultadoDTO.SucessoResultado(listaRetorno);
 
         }
     }

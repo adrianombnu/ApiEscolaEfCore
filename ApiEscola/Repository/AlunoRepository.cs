@@ -283,7 +283,9 @@ namespace ApiEscola.Services
             {
                 conn.Open();
 
-                var query = (@"SELECT * FROM (SELECT ROWNUM AS RN, A.* FROM ALUNO A WHERE 1 = 1");
+                var query = (@"SELECT * FROM (SELECT ROW_NUMBER() OVER (ORDER BY ROWID) AS RN,
+                                                     A.*,                                                
+                                                FROM ALUNO A WHERE 1 = 1");
 
                 var sb = new StringBuilder(query);
 
@@ -296,7 +298,7 @@ namespace ApiEscola.Services
                 if (!string.IsNullOrEmpty(dataDeNascimento.ToString()))
                     sb.Append(" AND to_char(A.DATADENASCIMENTO,'dd/mm/rrrr') = :DataDeNascimento ");
 
-                sb.Append(" ORDER BY ROWNUM) ALUNOS");
+                sb.Append(" ) ALUNOS");
                 sb.Append(" WHERE ROWNUM <= :Itens AND ALUNOS.RN > (:Page -1) * :Itens");
 
                 using var cmd = new OracleCommand(sb.ToString(), conn);
@@ -317,7 +319,11 @@ namespace ApiEscola.Services
                     {
                         List<Guid> materias = new List<Guid>();
 
-                        using var cmdMaterias = new OracleCommand(@"SELECT * FROM ALUNO_MATERIA WHERE IDALUNO = :IdAluno", conn);
+                        using var cmdMaterias = new OracleCommand(@"SELECT TM.IDMATERIA
+                                                                      FROM ALUNO_MATERIA AM
+                                                                INNER JOIN TURMA_MATERIA TM
+                                                                        ON AM.IDTURMAMATERIA = TM.ID
+                                                                     WHERE AM.IDALUNO = :IdAluno", conn);
 
                         cmdMaterias.Parameters.Add(new OracleParameter("IdAluno", Convert.ToString(reader["id"])));
 
@@ -325,7 +331,7 @@ namespace ApiEscola.Services
                         {
                             while (readerMaterias.Read())
                             {
-                                materias.Add(Guid.Parse(Convert.ToString(readerMaterias["idTurmaMateria"])));
+                                materias.Add(Guid.Parse(Convert.ToString(readerMaterias["idMateria"])));
 
                             }
                         }

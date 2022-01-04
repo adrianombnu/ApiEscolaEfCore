@@ -572,7 +572,10 @@ namespace ApiEscola.Repository
             {
                 conn.Open();
 
-                var query = (@"SELECT * FROM (SELECT ROWNUM AS RN, T.* FROM TURMA T WHERE 1 = 1");
+                var query = (@"SELECT * FROM (SELECT ROW_NUMBER() OVER (ORDER BY ROWID) AS RN,
+                                                     T.* 
+                                                FROM TURMA T 
+                                               WHERE 1 = 1");
 
                 var sb = new StringBuilder(query);
 
@@ -585,7 +588,7 @@ namespace ApiEscola.Repository
                 if (!string.IsNullOrEmpty(dataFim.ToString()))
                     sb.Append(" AND to_char(T.DATAFIM,'dd/mm/rrrr') = :DataFim");
 
-                sb.Append(" ORDER BY ROWNUM) TURMAS");
+                sb.Append(" ) TURMAS");
                 sb.Append(" WHERE ROWNUM <= :Itens AND TURMAS.RN > (:Page -1) * :Itens");
 
                 using var cmdTurma = new OracleCommand(sb.ToString(), conn);
