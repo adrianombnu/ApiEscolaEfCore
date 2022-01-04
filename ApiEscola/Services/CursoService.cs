@@ -14,8 +14,7 @@ namespace ApiEscola.Services
         {
             _cursoRepository = repository;
         }
-
-        
+                
         public ResultadoDTO Cadastrar(Curso curso)
         {
             if (_cursoRepository.BuscaCursoPeloNome(curso.Nome))
@@ -73,9 +72,11 @@ namespace ApiEscola.Services
 
         }
 
-        public IEnumerable<Curso> ListarCursos(string? nome = null, string? descricao = null, int page = 1, int itens = 50)
+        public ResultadoDTO ListarCursos(string? nome = null, string? descricao = null, int page = 1, int itens = 50)
         {
-            return _cursoRepository.ListarCursos(nome, descricao, page, itens);
+            var listaCursos = _cursoRepository.ListarCursos(nome, descricao, page, itens);
+
+            return ResultadoDTO.SucessoResultado(listaCursos);
 
         }
 

@@ -60,9 +60,11 @@ namespace ApiEscola.Services
                 return ResultadoDTO.ErroResultado("Erro ao remover o professor");
 
         }
-        public IEnumerable<Professor> ListarProfessores(string? nome = null, string? sobrenome = null, DateTime? dataDeNascimento = null, string? documento = null , int page = 1, int itens = 50)
+        public ResultadoDTO ListarProfessores(string? nome = null, string? sobrenome = null, DateTime? dataDeNascimento = null, string? documento = null , int page = 1, int itens = 50)
         {
-            return _professorRepository.ListarProfessores(nome, sobrenome, dataDeNascimento, documento, page, itens);
+            var listaProfessores = _professorRepository.ListarProfessores(nome, sobrenome, dataDeNascimento, documento, page, itens);
+
+            return ResultadoDTO.SucessoResultado(listaProfessores);
 
         }
     }

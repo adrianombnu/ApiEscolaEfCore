@@ -284,7 +284,7 @@ namespace ApiEscola.Services
                 conn.Open();
 
                 var query = (@"SELECT * FROM (SELECT ROW_NUMBER() OVER (ORDER BY ROWID) AS RN,
-                                                     A.*,                                                
+                                                     A.*                                                
                                                 FROM ALUNO A WHERE 1 = 1");
 
                 var sb = new StringBuilder(query);
