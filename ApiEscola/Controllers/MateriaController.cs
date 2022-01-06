@@ -1,10 +1,11 @@
-﻿using ApiEscola.Entities;
-using ApiEscola.Services;
+﻿using ApiEscolaEfCore.Entities;
+using ApiEscolaEfCore.Services;
+using Dominio.Entities;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
 #nullable enable
-namespace ApiEscola.Controllers
+namespace ApiEscolaEfCore.Controllers
 {
     [ApiController, Route("[controller]")]
     public class MateriaController : ControllerBase
@@ -79,7 +80,7 @@ namespace ApiEscola.Controllers
         [HttpGet, Route("{id}/materias")]
         public IActionResult Get(Guid id)
         {
-            return Ok(_materiaService.BuscaMateriaPeloId(id));
+            return Ok(_materiaService.BuscarPeloId(id));
 
         }
 

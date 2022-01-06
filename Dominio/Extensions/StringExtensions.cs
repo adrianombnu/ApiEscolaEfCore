@@ -1,4 +1,4 @@
-﻿namespace ApiEscola.Extensions
+﻿namespace Dominio.Extensions
 {
     public static class StringExtensions
     {

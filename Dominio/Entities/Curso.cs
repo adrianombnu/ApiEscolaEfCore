@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace ApiEscola.Entities
+namespace Dominio.Entities
 {
-    public class Curso : Base
+    public class Curso : Base<Guid>
     {
         public string Nome { get; set; }
         public string Descricao { get; set; }

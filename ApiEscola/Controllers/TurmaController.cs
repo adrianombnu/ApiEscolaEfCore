@@ -1,12 +1,13 @@
-﻿using ApiEscola.DTOs;
-using ApiEscola.Entities;
-using ApiEscola.Services;
+﻿using ApiEscolaEfCore.DTOs;
+using ApiEscolaEfCore.Entities;
+using ApiEscolaEfCore.Services;
+using Dominio.Entities;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 
 #nullable enable
-namespace ApiEscola.Controllers
+namespace ApiEscolaEfCore.Controllers
 {
     [ApiController, Route("[controller]")]
     public class TurmaController : ControllerBase

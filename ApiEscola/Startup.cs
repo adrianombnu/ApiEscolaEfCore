@@ -1,5 +1,7 @@
-using ApiEscola.Repository;
-using ApiEscola.Services;
+using ApiEscolaEfCore.Repository;
+using ApiEscolaEfCore.Services;
+using Dapper;
+using Dominio;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -12,10 +14,11 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ApiEscola
+namespace ApiEscolaEfCore
 {
     public class Startup
     {
@@ -49,10 +52,21 @@ namespace ApiEscola
             services.AddTransient<TurmaService>();
             services.AddTransient<AlunoService>();
 
+            services.AddTransient<ICursoRepository, DapperContext.Repository.CursoRepository>();
+            services.AddTransient<IProfessorRepository, DapperContext.Repository.ProfessorRepository>();
+            services.AddTransient<IMateriaRepository, DapperContext.Repository.MateriaRepository>();
+            services.AddTransient<ITurmaRepository, DapperContext.Repository.TurmaRepository>();
+            services.AddTransient<IAlunoRepository, DapperContext.Repository.AlunoRepository>();
+
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "ExercicioApiEscola", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "ExercicioApiEscolaEfCore", Version = "v1" });
             });
+
+            SqlMapper.AddTypeHandler(new MySqlGuidTypeHandler());
+            SqlMapper.RemoveTypeMap(typeof(Guid));
+            SqlMapper.RemoveTypeMap(typeof(Guid?));
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -62,7 +76,7 @@ namespace ApiEscola
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ApiEscola v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ApiEscolaEfCore v1"));
             }
 
             app.UseHttpsRedirection();
@@ -75,6 +89,19 @@ namespace ApiEscola
             {
                 endpoints.MapControllers();
             });
+        }
+    }
+
+    public class MySqlGuidTypeHandler : SqlMapper.TypeHandler<Guid>
+    {
+        public override void SetValue(IDbDataParameter parameter, Guid guid)
+        {
+            parameter.Value = guid.ToString();
+        }
+
+        public override Guid Parse(object value)
+        {
+            return new Guid((string)value);
         }
     }
 }

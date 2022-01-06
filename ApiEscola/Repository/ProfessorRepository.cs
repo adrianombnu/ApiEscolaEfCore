@@ -1,5 +1,4 @@
-﻿using ApiEscola.Entities;
-using ApiEscola.Extensions;
+﻿using Dominio.Entities;
 using Microsoft.Extensions.Configuration;
 using Oracle.ManagedDataAccess.Client;
 using System;
@@ -8,7 +7,7 @@ using System.Linq;
 using System.Text;
 
 #nullable enable
-namespace ApiEscola.Repository
+namespace ApiEscolaEfCore.Repository
 {
 
     public class ProfessorRepository
@@ -288,8 +287,10 @@ namespace ApiEscola.Repository
                 //problema de quantidade maior ou a menor
                 cmd.BindByName = true;
 
-                cmd.Parameters.Add(new OracleParameter("Nome", nome.ToUpperIgnoreNull()));
-                cmd.Parameters.Add(new OracleParameter("Sobrenome", sobrenome.ToUpperIgnoreNull()));
+                //cmd.Parameters.Add(new OracleParameter("Nome", nome.ToUpperIgnoreNull()));
+                cmd.Parameters.Add(new OracleParameter("Nome", nome));
+                //cmd.Parameters.Add(new OracleParameter("Sobrenome", sobrenome.ToUpperIgnoreNull()));
+                cmd.Parameters.Add(new OracleParameter("Sobrenome", sobrenome));
                 cmd.Parameters.Add(new OracleParameter("DataDeNascimento", (dataDeNascimento.HasValue ? dataDeNascimento.Value.ToString("dd/MM/yyyy") : "null")));
                 cmd.Parameters.Add(new OracleParameter("Documento", documento));
                 cmd.Parameters.Add(new OracleParameter("Itens", itens));

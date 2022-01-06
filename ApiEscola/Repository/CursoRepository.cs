@@ -1,5 +1,4 @@
-﻿using ApiEscola.Entities;
-using ApiEscola.Extensions;
+﻿using Dominio.Entities;
 using Microsoft.Extensions.Configuration;
 using Oracle.ManagedDataAccess.Client;
 using System;
@@ -8,7 +7,7 @@ using System.Linq;
 using System.Text;
 
 #nullable enable
-namespace ApiEscola.Repository
+namespace ApiEscolaEfCore.Repository
 {
 
     public class CursoRepository
@@ -112,7 +111,8 @@ namespace ApiEscola.Repository
                 using var cmd = new OracleCommand(@"SELECT * FROM CURSO 
                                                             WHERE UPPER(NOME) = :Nome", conn);
 
-                cmd.Parameters.Add(new OracleParameter("Nome", nomeCurso.ToUpperIgnoreNull()));
+                //cmd.Parameters.Add(new OracleParameter("Nome", nomeCurso.ToUpperIgnoreNull()));
+                cmd.Parameters.Add(new OracleParameter("Nome", nomeCurso));
 
                 using var reader = cmd.ExecuteReader();
 
@@ -138,7 +138,8 @@ namespace ApiEscola.Repository
                                                             WHERE UPPER(NOME) = :Nome 
                                                               AND ID <> :Id", conn);
 
-                cmd.Parameters.Add(new OracleParameter("Nome", nomeCurso.ToUpperIgnoreNull()));
+                //cmd.Parameters.Add(new OracleParameter("Nome", nomeCurso.ToUpperIgnoreNull()));
+                cmd.Parameters.Add(new OracleParameter("Nome", nomeCurso));
                 cmd.Parameters.Add(new OracleParameter("Id", id.ToString()));
 
                 using var reader = cmd.ExecuteReader();
@@ -263,8 +264,10 @@ namespace ApiEscola.Repository
                 //problema de quantidade maior ou a menor
                 cmd.BindByName = true;
 
-                cmd.Parameters.Add(new OracleParameter("Nome", nome.ToUpperIgnoreNull()));
-                cmd.Parameters.Add(new OracleParameter("Descricao", descricao.ToUpperIgnoreNull()));
+                //cmd.Parameters.Add(new OracleParameter("Nome", nome.ToUpperIgnoreNull()));
+                cmd.Parameters.Add(new OracleParameter("Nome", nome));
+                cmd.Parameters.Add(new OracleParameter("Descricao", descricao));
+                //cmd.Parameters.Add(new OracleParameter("Descricao", descricao.ToUpperIgnoreNull()));
                 cmd.Parameters.Add(new OracleParameter("Itens", itens));
                 cmd.Parameters.Add(new OracleParameter("Page", page));
 

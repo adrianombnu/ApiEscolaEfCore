@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ApiEscola.DTOs
+namespace ApiEscolaEfCore.DTOs
 {
     public class ResultadoDTO
     {

@@ -1,25 +1,39 @@
-﻿using ApiEscola.DTOs;
-using ApiEscola.Entities;
-using ApiEscola.Repository;
+﻿using ApiEscolaEfCore.DTOs;
+using ApiEscolaEfCore.Entities;
+using ApiEscolaEfCore.Repository;
+using Dominio;
+using Dominio.Entities;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 
 #nullable enable
-namespace ApiEscola.Services
+namespace ApiEscolaEfCore.Services
 {
     public class AlunoService
     {
         private readonly AlunoRepository _alunoRepository;
+        private readonly IAlunoRepository _iAlunoRepository;
         private readonly MateriaRepository _materiaRepository;
+        private readonly IMateriaRepository _iMateriaRepository;
         private readonly TurmaRepository _turmaRepository;
+        private readonly ITurmaRepository _iTurmaRepository;
         private readonly IConfiguration _configuration;
 
-        public AlunoService(AlunoRepository alunoRepository, MateriaRepository materiaRepository, TurmaRepository turmaRepository, IConfiguration configuration)
+        public AlunoService(AlunoRepository alunoRepository,
+                            IAlunoRepository iAlunoRepository,
+                            MateriaRepository materiaRepository,
+                            IMateriaRepository iMateriaRepository,
+                            TurmaRepository turmaRepository,
+                            ITurmaRepository iTurmaRepository,
+                            IConfiguration configuration)
         {
             _alunoRepository = alunoRepository;
+            _iAlunoRepository = iAlunoRepository;
             _materiaRepository = materiaRepository;
+            _iMateriaRepository = iMateriaRepository;
             _turmaRepository = turmaRepository;
+            _iTurmaRepository = iTurmaRepository;
             _configuration = configuration;
         }
 
@@ -27,7 +41,7 @@ namespace ApiEscola.Services
         {
             var LimiteMaximoDeMateriasPorAlunoPorCurso = _configuration.GetValue<int>("LimiteMaximoDeMateriasPorAlunoPorCurso");
 
-            if (_alunoRepository.VerificaSeAlunoJaCadastrado(aluno.Documento, idTurma))
+            if (_iAlunoRepository.VerificaSeAlunoJaCadastrado(aluno.Documento, idTurma))
                 return ResultadoDTO.ErroResultado("Aluno já está matriculado na turma informada!");
 
             var turma = _turmaRepository.BuscarTurmaPeloId(idTurma);
@@ -57,7 +71,7 @@ namespace ApiEscola.Services
 
         public ResultadoDTO RemoverAluno(Guid id)
         {
-            var aluno = _alunoRepository.BuscarAlunoPeloId(id);
+            var aluno = _iAlunoRepository.BuscarPeloId(id);
 
             if (aluno is null)
                 return ResultadoDTO.ErroResultado("Aluno não encontrado.");
@@ -71,7 +85,7 @@ namespace ApiEscola.Services
 
         public ResultadoDTO BuscarAlunoPeloId(Guid id)
         {
-            var aluno = _alunoRepository.BuscarAlunoPeloId(id);
+            var aluno = _iAlunoRepository.BuscarPeloId(id);
 
             if (aluno is null)
                 return ResultadoDTO.ErroResultado("Aluno não encontrado");
@@ -82,7 +96,7 @@ namespace ApiEscola.Services
 
         public ResultadoDTO ListarAlunos(string? nome = null, string? sobrenome = null, DateTime? dataDeNascimento = null, int page = 1, int itens = 50)
         {
-            var listaAlunos = _alunoRepository.ListarAlunos(nome, sobrenome,dataDeNascimento, page, itens);
+            var listaAlunos = _iAlunoRepository.ListarAlunos(nome, sobrenome,dataDeNascimento, page, itens);
 
             var listaRetorno = new List<RetornoAlunoDTO>();
             
@@ -97,11 +111,17 @@ namespace ApiEscola.Services
                     Id = aluno.Id
                 };
 
+                if(aluno.IdMaterias is null)
+                {
+                    listaRetorno.Add(alunoRetorno);
+                    continue;
+                }
+
                 foreach (var materia in aluno.IdMaterias)
                 {
                     alunoRetorno.Materias ??= new List<RetornoMateriaDTO>();
 
-                    var materiaRetorno = _materiaRepository.BuscaMateriaPeloId(materia);
+                    var materiaRetorno = _iMateriaRepository.BuscarPeloId(materia);
 
                     if (materiaRetorno is null)
                         return ResultadoDTO.ErroResultado("Materia não encontrada!");

@@ -1,5 +1,4 @@
-﻿using ApiEscola.Entities;
-using ApiEscola.Extensions;
+﻿using Dominio.Entities;
 using Microsoft.Extensions.Configuration;
 using Oracle.ManagedDataAccess.Client;
 using System;
@@ -9,7 +8,7 @@ using System.Linq;
 using System.Text;
 
 #nullable enable
-namespace ApiEscola.Services
+namespace ApiEscolaEfCore.Services
 {
     public class AlunoRepository
     {
@@ -129,75 +128,9 @@ namespace ApiEscola.Services
 
         }
 
-        public bool VerificaSeAlunoJaCadastrado(string documento, Guid idTurma)
-        {
-            var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
-            var cursoEncontrado = false;
+        
 
-            using (var conn = new OracleConnection(conexao))
-            {
-                conn.Open();
-
-                using var cmd = new OracleCommand(@"SELECT * FROM ALUNO A 
-                                                       INNER JOIN TURMA_ALUNO TA
-                                                               ON A.ID = TA.IDALUNO 
-                                                            WHERE A.DOCUMENTO = :Documento 
-                                                              AND TA.IDTURMA = :IdTurma", conn);
-
-                cmd.Parameters.Add(new OracleParameter("Documento", documento));
-                cmd.Parameters.Add(new OracleParameter("IdTurma", idTurma.ToString()));
-
-                using var reader = cmd.ExecuteReader();
-
-                if (reader.HasRows)
-                    cursoEncontrado = true;
-
-            }
-
-            return cursoEncontrado;
-
-        }
-
-        public Aluno BuscarAlunoPeloId(Guid idAluno)
-        {
-            var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
-            List<Guid> materias = new List<Guid>();
-
-            using (var conn = new OracleConnection(conexao))
-            {
-                conn.Open();
-
-                using var cmd = new OracleCommand(@"SELECT * FROM ALUNO WHERE ID = :IdAluno", conn);
-
-                cmd.Parameters.Add(new OracleParameter("IdAluno", idAluno.ToString()));
-
-                using (var reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        using var cmdMaterias = new OracleCommand(@"SELECT * FROM ALUNO_MATERIA WHERE IDALUNO = :IdAluno", conn);
-
-                        cmdMaterias.Parameters.Add(new OracleParameter("IdAluno", idAluno.ToString()));
-
-                        using (var readerMaterias = cmdMaterias.ExecuteReader())
-                        {
-                            while (readerMaterias.Read())
-                            {
-                                materias.Add(Guid.Parse(Convert.ToString(readerMaterias["idTurmaMateria"])));
-
-                            }
-                        }
-
-                        return new Aluno(Convert.ToString(reader["nome"]), Convert.ToString(reader["sobrenome"]), Convert.ToDateTime(reader["dataDeNascimento"]), Convert.ToString(reader["documento"]), materias, Guid.Parse(Convert.ToString(reader["id"])));
-
-                    }
-                }
-
-            }
-
-            return null;
-
-        }
+        
 
         public bool RomoverAluno(Aluno aluno)
         {
@@ -273,80 +206,6 @@ namespace ApiEscola.Services
             }
 
             return retorno;
-
-        }
-
-        public IEnumerable<Aluno> ListarAlunos(string? nome = null, string? sobrenome = null, DateTime? dataDeNascimento = null, int page = 1, int itens = 50)
-        {
-            var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
-
-            using (var conn = new OracleConnection(conexao))
-            {
-                conn.Open();
-
-                var query = (@"SELECT * FROM (SELECT ROW_NUMBER() OVER (ORDER BY ROWID) AS RN,
-                                                     A.*                                                
-                                                FROM ALUNO A WHERE 1 = 1");
-
-                var sb = new StringBuilder(query);
-
-                if (!string.IsNullOrEmpty(nome))
-                    sb.Append(" AND UPPER(A.NOME) LIKE '%' || :Nome || '%' ");
-
-                if (!string.IsNullOrEmpty(sobrenome))
-                    sb.Append(" AND UPPER(A.SOBRENOME) LIKE '%' || :Sobrenome || '%' ");
-
-                if (!string.IsNullOrEmpty(dataDeNascimento.ToString()))
-                    sb.Append(" AND to_char(A.DATADENASCIMENTO,'dd/mm/rrrr') = :DataDeNascimento ");
-
-                sb.Append(" ) ALUNOS");
-                sb.Append(" WHERE ROWNUM <= :Itens AND ALUNOS.RN > (:Page -1) * :Itens");
-
-                using var cmd = new OracleCommand(sb.ToString(), conn);
-
-                //Esse bind serve para que quando, for passado mais parametros do que o necessário para montar o comando sql, devido a ser criado de forma dinamica, vamos evitar que dê
-                //problema de quantidade maior ou a menor
-                cmd.BindByName = true;
-
-                cmd.Parameters.Add(new OracleParameter("Nome", nome.ToUpperIgnoreNull()));
-                cmd.Parameters.Add(new OracleParameter("Sobrenome", sobrenome.ToUpperIgnoreNull()));
-                cmd.Parameters.Add(new OracleParameter("DataDeNascimento", (dataDeNascimento.HasValue ? dataDeNascimento.Value.ToString("dd/MM/yyyy") : "null")));
-                cmd.Parameters.Add(new OracleParameter("Itens", itens));
-                cmd.Parameters.Add(new OracleParameter("Page", page));
-
-                using (var reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        List<Guid> materias = new List<Guid>();
-
-                        using var cmdMaterias = new OracleCommand(@"SELECT TM.IDMATERIA
-                                                                      FROM ALUNO_MATERIA AM
-                                                                INNER JOIN TURMA_MATERIA TM
-                                                                        ON AM.IDTURMAMATERIA = TM.ID
-                                                                     WHERE AM.IDALUNO = :IdAluno", conn);
-
-                        cmdMaterias.Parameters.Add(new OracleParameter("IdAluno", Convert.ToString(reader["id"])));
-
-                        using (var readerMaterias = cmdMaterias.ExecuteReader())
-                        {
-                            while (readerMaterias.Read())
-                            {
-                                materias.Add(Guid.Parse(Convert.ToString(readerMaterias["idMateria"])));
-
-                            }
-                        }
-
-                        var aluno = new Aluno(Convert.ToString(reader["nome"]), Convert.ToString(reader["sobrenome"]), Convert.ToDateTime(reader["dataDeNascimento"]), Convert.ToString(reader["documento"]), materias, Guid.Parse(Convert.ToString(reader["id"])));
-
-                        _alunos.Add(aluno);
-
-                    }
-                }
-            }
-
-            //return _alunos.Skip((page - 1) * itens).Take(itens);
-            return _alunos;
 
         }
 

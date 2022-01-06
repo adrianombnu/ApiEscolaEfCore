@@ -1,8 +1,8 @@
-﻿using ApiEscola.Entities;
+﻿using ApiEscolaEfCore.Entities;
 using System;
 using System.Collections.Generic;
 
-namespace ApiEscola.DTOs
+namespace ApiEscolaEfCore.DTOs
 {
     public class RetornoTurmaDTO
     {

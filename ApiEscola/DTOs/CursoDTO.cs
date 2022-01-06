@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace ApiEscola.DTOs
+namespace ApiEscolaEfCore.DTOs
 {
     public class CursoDTO : Validator
     {

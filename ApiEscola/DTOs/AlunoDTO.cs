@@ -1,9 +1,9 @@
-﻿using ApiEscola.DTOs;
+﻿using ApiEscolaEfCore.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace ApiEscola.Entities
+namespace ApiEscolaEfCore.Entities
 {
     public class AlunoDTO : Validator
     {

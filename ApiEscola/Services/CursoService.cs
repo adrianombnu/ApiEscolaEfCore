@@ -1,11 +1,12 @@
-﻿using ApiEscola.DTOs;
-using ApiEscola.Entities;
-using ApiEscola.Repository;
+﻿using ApiEscolaEfCore.DTOs;
+using ApiEscolaEfCore.Entities;
+using ApiEscolaEfCore.Repository;
+using Dominio.Entities;
 using System;
 using System.Collections.Generic;
 
 #nullable enable
-namespace ApiEscola.Services
+namespace ApiEscolaEfCore.Services
 {
     public class CursoService
     {

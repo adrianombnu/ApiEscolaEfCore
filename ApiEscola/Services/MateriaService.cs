@@ -1,21 +1,22 @@
-﻿using ApiEscola.DTOs;
-using ApiEscola.Entities;
-using ApiEscola.Repository;
-using Microsoft.Extensions.Configuration;
+﻿using ApiEscolaEfCore.DTOs;
+using ApiEscolaEfCore.Repository;
+using Dominio;
+using Dominio.Entities;
 using System;
-using System.Collections.Generic;
 
 #nullable enable
-namespace ApiEscola.Services
+namespace ApiEscolaEfCore.Services
 {
     public class MateriaService
     {
         private readonly MateriaRepository _materiaRepository;
+        private readonly IMateriaRepository _imateriaRepository;
         private readonly ProfessorRepository _professorRepository;
 
-        public MateriaService(MateriaRepository materiaRepository, ProfessorRepository professorRepository)
+        public MateriaService(MateriaRepository materiaRepository, ProfessorRepository professorRepository, IMateriaRepository imateriaRepository)
         {
             _materiaRepository = materiaRepository;
+            _imateriaRepository = imateriaRepository;
             _professorRepository = professorRepository;
         }
 
@@ -26,7 +27,7 @@ namespace ApiEscola.Services
                 return ResultadoDTO.ErroResultado("Já existe uma materia cadastrada com o nome informado!");
             */
 
-            if (_materiaRepository.VerificaSeMateriaJaCadastrada(materia.Nome, materia.Id, materia.IdProfessor))
+            if (_imateriaRepository.VerificaSeMateriaJaCadastrada(materia.Nome, materia.Id, materia.IdProfessor))
                 return ResultadoDTO.ErroResultado("Matéria já cadastrada para o professor informado!");
 
             var professor = _professorRepository.BuscaProfessorPeloId(materia.IdProfessor);
@@ -43,12 +44,12 @@ namespace ApiEscola.Services
 
         public ResultadoDTO AtualizarMateria(Materia materia)
         {
-            var materiaAtual = _materiaRepository.BuscaMateriaPeloId(materia.Id);
+            var materiaAtual = _imateriaRepository.BuscarPeloId(materia.Id);
 
             if (materiaAtual is null)
                 return ResultadoDTO.ErroResultado("Matéria não encontrada!");
 
-            if (_materiaRepository.VerificaSeMateriaJaCadastrada(materia.Nome, materia.Id, materia.IdProfessor, true))
+            if (_imateriaRepository.VerificaSeMateriaJaCadastrada(materia.Nome, materia.Id, materia.IdProfessor, true))
                 return ResultadoDTO.ErroResultado("Matéria já cadastrada para o professor informado!");
 
             var professor = _professorRepository.BuscaProfessorPeloId(materia.IdProfessor);
@@ -65,12 +66,12 @@ namespace ApiEscola.Services
 
         public ResultadoDTO RemoverMateria(Guid id)
         {
-            var materia = _materiaRepository.BuscaMateriaPeloId(id);
+            var materia = _imateriaRepository.BuscarPeloId(id);
 
             if (materia is null)
                 return ResultadoDTO.ErroResultado("Matéria não encontrada");
 
-            if (_materiaRepository.VerificaSePossuiTurmaVinculada(id))
+            if (_imateriaRepository.VerificaSePossuiTurmaVinculada(id))
                 return ResultadoDTO.ErroResultado("Matéria já está vinculada a uma turma, favor remover o vinculo");
 
             if (_materiaRepository.RomoverMateria(id))
@@ -80,9 +81,9 @@ namespace ApiEscola.Services
 
         }
 
-        public ResultadoDTO BuscaMateriaPeloId(Guid id)
+        public ResultadoDTO BuscarPeloId(Guid id)
         {
-            var materia = _materiaRepository.BuscaMateriaPeloId(id);
+            var materia = _imateriaRepository.BuscarPeloId(id);
 
             if (materia is null)
                 return ResultadoDTO.ErroResultado("Matéria não encontrada");
@@ -93,7 +94,7 @@ namespace ApiEscola.Services
 
         public ResultadoDTO ListarMaterias(string? nome = null, int page = 1, int itens = 50)
         {
-            var listaMeterias = _materiaRepository.ListarMaterias(nome, page, itens);
+            var listaMeterias = _imateriaRepository.ListarMaterias(nome, page, itens);
 
             return ResultadoDTO.SucessoResultado(listaMeterias);
 

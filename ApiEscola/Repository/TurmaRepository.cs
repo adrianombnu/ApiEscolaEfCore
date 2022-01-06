@@ -1,5 +1,4 @@
-﻿using ApiEscola.Entities;
-using ApiEscola.Extensions;
+﻿using Dominio.Entities;
 using Microsoft.Extensions.Configuration;
 using Oracle.ManagedDataAccess.Client;
 using System;
@@ -9,7 +8,7 @@ using System.Linq;
 using System.Text;
 
 #nullable enable
-namespace ApiEscola.Repository
+namespace ApiEscolaEfCore.Repository
 {
     public class TurmaRepository
     {
@@ -318,7 +317,8 @@ namespace ApiEscola.Repository
                 //problema de quantidade maior ou a menor
                 cmdTurma.BindByName = true;
 
-                cmdTurma.Parameters.Add(new OracleParameter("Nome", nomeTurma.ToUpperIgnoreNull()));
+                //cmdTurma.Parameters.Add(new OracleParameter("Nome", nomeTurma.ToUpperIgnoreNull()));
+                cmdTurma.Parameters.Add(new OracleParameter("Nome", nomeTurma));
                 cmdTurma.Parameters.Add(new OracleParameter("IdTurma", idTurma.ToString()));
 
                 using var reader = cmdTurma.ExecuteReader();
@@ -598,7 +598,8 @@ namespace ApiEscola.Repository
                 //problema de quantidade maior ou a menor
                 cmdTurma.BindByName = true;
 
-                cmdTurma.Parameters.Add(new OracleParameter("Nome", nome.ToUpperIgnoreNull()));
+                //cmdTurma.Parameters.Add(new OracleParameter("Nome", nome.ToUpperIgnoreNull()));
+                cmdTurma.Parameters.Add(new OracleParameter("Nome", nome));
                 cmdTurma.Parameters.Add(new OracleParameter("DataInicio", (dataInicio.HasValue ? dataInicio.Value.ToString("dd/MM/yyyy") : "null")));
                 cmdTurma.Parameters.Add(new OracleParameter("DataFim", (dataFim.HasValue ? dataFim.Value.ToString("dd/MM/yyyy") : "null")));
                 cmdTurma.Parameters.Add(new OracleParameter("Itens", itens));

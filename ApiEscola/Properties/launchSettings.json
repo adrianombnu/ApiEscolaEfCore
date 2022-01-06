@@ -17,7 +17,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "ApiEscola": {
+    "ApiEscolaEfCore": {
       "commandName": "Project",
       "dotnetRunMessages": "true",
       "launchBrowser": true,

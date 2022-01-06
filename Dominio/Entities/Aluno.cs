@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ApiEscola.Entities
+namespace Dominio.Entities
 {
     public class Aluno : Pessoa
     {
+
+        public Aluno() { }
+
         public Aluno(string nome, string sobrenome, DateTime dataNascimento, string documento, List<Guid> idMaterias)
         {
             Nome = nome;

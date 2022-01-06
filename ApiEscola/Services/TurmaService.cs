@@ -1,25 +1,33 @@
-﻿using ApiEscola.DTOs;
-using ApiEscola.Entities;
-using ApiEscola.Repository;
+﻿using ApiEscolaEfCore.DTOs;
+using ApiEscolaEfCore.Entities;
+using ApiEscolaEfCore.Repository;
+using Dominio;
+using Dominio.Entities;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 
 #nullable enable
-namespace ApiEscola.Services
+namespace ApiEscolaEfCore.Services
 {
     public class TurmaService
     {
         private readonly TurmaRepository _turmaRepository;
         private readonly CursoRepository _cursoRepository;
         private readonly MateriaRepository _materiaRepository;
+        private readonly IMateriaRepository _iMateriaRepository;
         private readonly IConfiguration _configuration;
 
-        public TurmaService(TurmaRepository turmaRepository, CursoRepository cursoRepository, MateriaRepository materiaRepository, IConfiguration configuration)
+        public TurmaService(TurmaRepository turmaRepository,
+                            CursoRepository cursoRepository,
+                            MateriaRepository materiaRepository,
+                            IMateriaRepository iMateriaRepository,
+                            IConfiguration configuration)
         {
             _turmaRepository = turmaRepository;
             _cursoRepository = cursoRepository;
             _materiaRepository = materiaRepository;
+            _iMateriaRepository = iMateriaRepository;
             _configuration = configuration;
         }
 
@@ -51,7 +59,7 @@ namespace ApiEscola.Services
 
             foreach (var id in turma.IdMaterias)
             {
-                var materia = _materiaRepository.BuscaMateriaPeloId(id);
+                var materia = _iMateriaRepository.BuscarPeloId(id);
 
                 if (materia is null)
                     return ResultadoDTO.ErroResultado("Materia informada não existe!");
@@ -122,7 +130,7 @@ namespace ApiEscola.Services
 
             foreach (var id in idMaterias)
             {
-                var materia = _materiaRepository.BuscaMateriaPeloId(id);
+                var materia = _iMateriaRepository.BuscarPeloId(id);
 
                 if (materia is null)
                     return ResultadoDTO.ErroResultado("Matéria informada não existe!");
@@ -186,7 +194,7 @@ namespace ApiEscola.Services
             {
                 turmaAlunos.Materias ??= new List<RetornoMateriaDTO>();
 
-                var materiaRetorno = _materiaRepository.BuscaMateriaPeloId(materia);
+                var materiaRetorno = _iMateriaRepository.BuscarPeloId(materia);
 
                 if (materiaRetorno is null)
                     return ResultadoDTO.ErroResultado("Materia não encontrada!");
@@ -223,7 +231,7 @@ namespace ApiEscola.Services
                 {
                     alunoRetorno.Materias ??= new List<RetornoMateriaDTO>();
 
-                    var materiaRetorno = _materiaRepository.BuscaMateriaPeloId(materia);
+                    var materiaRetorno = _iMateriaRepository.BuscarPeloId(materia);
 
                     if (materiaRetorno is null)
                         return ResultadoDTO.ErroResultado("Materia não encontrada!");
@@ -265,7 +273,7 @@ namespace ApiEscola.Services
             {
                 turmaAlunos.Materias ??= new List<RetornoMateriaDTO>();
 
-                var materiaRetorno = _materiaRepository.BuscaMateriaPeloId(materia);
+                var materiaRetorno = _iMateriaRepository.BuscarPeloId(materia);
 
                 if (materiaRetorno is null)
                     return ResultadoDTO.ErroResultado("Materia não encontrada!");
@@ -302,7 +310,7 @@ namespace ApiEscola.Services
                 {
                     alunoRetorno.Materias ??= new List<RetornoMateriaDTO>();
 
-                    var materiaRetorno = _materiaRepository.BuscaMateriaPeloId(materia);
+                    var materiaRetorno = _iMateriaRepository.BuscarPeloId(materia);
 
                     if (materiaRetorno is null)
                         return ResultadoDTO.ErroResultado("Materia não encontrada!");
@@ -347,7 +355,7 @@ namespace ApiEscola.Services
                 {
                     turmaAlunos.Materias ??= new List<RetornoMateriaDTO>();
 
-                    var materiaRetorno = _materiaRepository.BuscaMateriaPeloId(materia);
+                    var materiaRetorno = _iMateriaRepository.BuscarPeloId(materia);
 
                     if (materiaRetorno is null)
                         return ResultadoDTO.ErroResultado("Materia não encontrada!");
@@ -388,7 +396,7 @@ namespace ApiEscola.Services
                     {
                         alunoRetorno.Materias ??= new List<RetornoMateriaDTO>();
 
-                        var materiaRetorno = _materiaRepository.BuscaMateriaPeloId(materia);
+                        var materiaRetorno = _iMateriaRepository.BuscarPeloId(materia);
 
                         if (materiaRetorno is null)
                             return ResultadoDTO.ErroResultado("Materia não encontrada!");

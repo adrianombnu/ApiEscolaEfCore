@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ApiEscola.Entities
+namespace Dominio.Entities
 {
-    public class Turma : Base
+    public class Turma : Base<Guid>
     {
         public Turma(string nome, DateTime dataInicio, DateTime dataFim, List<Guid> idMaterias, Guid idCurso)
         {

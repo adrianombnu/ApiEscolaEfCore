@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ApiEscola.DTOs
+namespace ApiEscolaEfCore.DTOs
 {
     public abstract class Validator
     {

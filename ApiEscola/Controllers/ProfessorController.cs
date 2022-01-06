@@ -1,11 +1,12 @@
-﻿using ApiEscola.DTOs;
-using ApiEscola.Services;
+﻿using ApiEscolaEfCore.DTOs;
+using ApiEscolaEfCore.Services;
 using Microsoft.AspNetCore.Mvc;
-using ApiEscola.Entities;
+using ApiEscolaEfCore.Entities;
 using System;
+using Dominio.Entities;
 
 #nullable enable
-namespace ApiEscola.Controllers
+namespace ApiEscolaEfCore.Controllers
 {
     [ApiController, Route("[controller]")]
     public class ProfessorController : ControllerBase

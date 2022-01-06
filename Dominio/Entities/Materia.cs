@@ -1,9 +1,11 @@
 ﻿using System;
 
-namespace ApiEscola.Entities
+namespace Dominio.Entities
 {
-    public class Materia : Base
+    public class Materia : Base<Guid>
     {
+        public Materia() { }
+
         public Materia(string nome, Guid idProfessor)
         {
             Nome = nome;

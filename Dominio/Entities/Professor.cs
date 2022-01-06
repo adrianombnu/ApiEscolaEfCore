@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ApiEscola.Entities
+namespace Dominio.Entities
 {
     public class Professor : Pessoa
     {
