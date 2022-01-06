@@ -58,6 +58,8 @@ namespace ApiEscolaEfCore
             services.AddTransient<ITurmaRepository, DapperContext.Repository.TurmaRepository>();
             services.AddTransient<IAlunoRepository, DapperContext.Repository.AlunoRepository>();
 
+            services.AddTransient<IMateriaRepositoryEfCore, ApiEscolaEfCore.Repository.MateriaRepository>();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ExercicioApiEscolaEfCore", Version = "v1" });

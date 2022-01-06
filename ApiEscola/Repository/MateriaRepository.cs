@@ -1,4 +1,5 @@
-﻿using Dominio.Entities;
+﻿using Dominio;
+using Dominio.Entities;
 using Microsoft.Extensions.Configuration;
 using Oracle.ManagedDataAccess.Client;
 using System;
@@ -8,7 +9,7 @@ using System.Collections.Generic;
 namespace ApiEscolaEfCore.Repository
 {
 
-    public class MateriaRepository
+    public class MateriaRepository : IMateriaRepositoryEfCore
     {
         private readonly IConfiguration _configuration;
         private readonly List<Materia> _materias;
