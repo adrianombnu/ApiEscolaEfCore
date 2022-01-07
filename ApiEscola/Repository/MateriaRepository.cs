@@ -100,7 +100,19 @@ namespace ApiEscolaEfCore.Repository
             return retorno;
         }
 
-        
+        public void Incluir(Materia entity)
+        {
+            throw new NotImplementedException();
+        }
 
+        public void Atualizar(Materia entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Remover(Materia entity)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -1,11 +1,8 @@
-﻿
-
-using Dominio;
+﻿using Dominio;
 using Dominio.Entities;
-using EfContext.Repository;
 using System;
 
-namespace EfContext
+namespace EfContext.Repository
 {
     public class MateriaRepository : RepositoryBase<Guid, Materia>, IMateriaRepositoryEfCore
     {

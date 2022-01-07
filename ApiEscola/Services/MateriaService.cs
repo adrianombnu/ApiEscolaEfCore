@@ -10,13 +10,18 @@ namespace ApiEscolaEfCore.Services
     public class MateriaService
     {
         private readonly MateriaRepository _materiaRepository;
-        private readonly IMateriaRepository _imateriaRepository;
+        private readonly IMateriaRepository _iMateriaRepository;
+        private readonly IMateriaRepositoryEfCore _iMateriaRepositoryEfCore;
         private readonly ProfessorRepository _professorRepository;
 
-        public MateriaService(MateriaRepository materiaRepository, ProfessorRepository professorRepository, IMateriaRepository imateriaRepository)
+        public MateriaService(MateriaRepository materiaRepository,
+                              ProfessorRepository professorRepository,
+                              IMateriaRepository iMateriaRepository,
+                              IMateriaRepositoryEfCore iMateriaRepositoryEfCore)
         {
             _materiaRepository = materiaRepository;
-            _imateriaRepository = imateriaRepository;
+            _iMateriaRepository = iMateriaRepository;
+            _iMateriaRepositoryEfCore = iMateriaRepositoryEfCore;
             _professorRepository = professorRepository;
         }
 
@@ -27,7 +32,7 @@ namespace ApiEscolaEfCore.Services
                 return ResultadoDTO.ErroResultado("Já existe uma materia cadastrada com o nome informado!");
             */
 
-            if (_imateriaRepository.VerificaSeMateriaJaCadastrada(materia.Nome, materia.Id, materia.IdProfessor))
+            if (_iMateriaRepository.VerificaSeMateriaJaCadastrada(materia.Nome, materia.Id, materia.IdProfessor))
                 return ResultadoDTO.ErroResultado("Matéria já cadastrada para o professor informado!");
 
             var professor = _professorRepository.BuscaProfessorPeloId(materia.IdProfessor);
@@ -44,12 +49,12 @@ namespace ApiEscolaEfCore.Services
 
         public ResultadoDTO AtualizarMateria(Materia materia)
         {
-            var materiaAtual = _imateriaRepository.BuscarPeloId(materia.Id);
+            var materiaAtual = _iMateriaRepository.BuscarPeloId(materia.Id);
 
             if (materiaAtual is null)
                 return ResultadoDTO.ErroResultado("Matéria não encontrada!");
 
-            if (_imateriaRepository.VerificaSeMateriaJaCadastrada(materia.Nome, materia.Id, materia.IdProfessor, true))
+            if (_iMateriaRepository.VerificaSeMateriaJaCadastrada(materia.Nome, materia.Id, materia.IdProfessor, true))
                 return ResultadoDTO.ErroResultado("Matéria já cadastrada para o professor informado!");
 
             var professor = _professorRepository.BuscaProfessorPeloId(materia.IdProfessor);
@@ -66,12 +71,12 @@ namespace ApiEscolaEfCore.Services
 
         public ResultadoDTO RemoverMateria(Guid id)
         {
-            var materia = _imateriaRepository.BuscarPeloId(id);
+            var materia = _iMateriaRepository.BuscarPeloId(id);
 
             if (materia is null)
                 return ResultadoDTO.ErroResultado("Matéria não encontrada");
 
-            if (_imateriaRepository.VerificaSePossuiTurmaVinculada(id))
+            if (_iMateriaRepository.VerificaSePossuiTurmaVinculada(id))
                 return ResultadoDTO.ErroResultado("Matéria já está vinculada a uma turma, favor remover o vinculo");
 
             if (_materiaRepository.RomoverMateria(id))
@@ -83,7 +88,7 @@ namespace ApiEscolaEfCore.Services
 
         public ResultadoDTO BuscarPeloId(Guid id)
         {
-            var materia = _imateriaRepository.BuscarPeloId(id);
+            var materia = _iMateriaRepository.BuscarPeloId(id);
 
             if (materia is null)
                 return ResultadoDTO.ErroResultado("Matéria não encontrada");
@@ -94,7 +99,7 @@ namespace ApiEscolaEfCore.Services
 
         public ResultadoDTO ListarMaterias(string? nome = null, int page = 1, int itens = 50)
         {
-            var listaMeterias = _imateriaRepository.ListarMaterias(nome, page, itens);
+            var listaMeterias = _iMateriaRepository.ListarMaterias(nome, page, itens);
 
             return ResultadoDTO.SucessoResultado(listaMeterias);
 

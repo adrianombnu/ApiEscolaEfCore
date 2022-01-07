@@ -2,21 +2,20 @@ using ApiEscolaEfCore.Repository;
 using ApiEscolaEfCore.Services;
 using Dapper;
 using Dominio;
+using EfContext;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
+
 using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace ApiEscolaEfCore
 {
@@ -32,14 +31,25 @@ namespace ApiEscolaEfCore
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var connectionString = Configuration.GetConnectionString("Conexao");
 
             //Este comando vai permitir, de forma global, que não fique num ciclo infinito ao serializar/deserializar um json
             services.AddMvc()
                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
                .AddNewtonsoftJson(c => c.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 
-            services.AddControllers();     
-            
+            services.AddControllers();
+
+            services.AddDbContext<EfContext.AppContext>(
+                configuration =>
+                {
+                    configuration.UseOracle(connectionString,
+                        opt =>
+                        {
+                            opt.MigrationsAssembly(typeof(EfContext.AppContext).Assembly.GetName().Name);
+                        });
+                });
+
             services.AddTransient<CursoRepository>();
             services.AddTransient<ProfessorRepository>();
             services.AddTransient<MateriaRepository>();
@@ -58,7 +68,9 @@ namespace ApiEscolaEfCore
             services.AddTransient<ITurmaRepository, DapperContext.Repository.TurmaRepository>();
             services.AddTransient<IAlunoRepository, DapperContext.Repository.AlunoRepository>();
 
-            services.AddTransient<IMateriaRepositoryEfCore, ApiEscolaEfCore.Repository.MateriaRepository>();
+            services.AddTransient<IMateriaRepositoryEfCore, EfContext.Repository.MateriaRepository>();
+
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             services.AddSwaggerGen(c =>
             {

@@ -49,9 +49,9 @@ namespace DapperContext.Repository
             if (consideraIdDifente)
                 sb.Append(" AND M.ID <> :IdMateria ");
 
-            var materia = _connection.QuerySingle<Materia>(sb.ToString(), new { IdMateria = idMateria.ToString(),
+            var materia = _connection.QueryFirstOrDefault<Materia>(sb.ToString(), new { IdMateria = idMateria.ToString(),
                                                                                 //NomeMateria = nomeMateria.ToUpperIgnoreNull(),
-                                                                                NomeMateria = nomeMateria,
+                                                                                NomeMateria = nomeMateria.ToUpper(),
                                                                                 IdProfessor = idProfessor.ToString()
                                                                                });
             if (materia is null)

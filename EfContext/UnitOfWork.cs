@@ -1,4 +1,5 @@
 ﻿using Dominio;
+using EfContext.Repository;
 using System;
 
 namespace EfContext
@@ -8,7 +9,7 @@ namespace EfContext
         private bool _disposedValue;
         private readonly AppContext _appContext;
 
-        public IMateriaRepository MateriaRepository { get; private set; }
+        public IMateriaRepositoryEfCore MateriaRepository { get; private set; }
 
         public UnitOfWork(AppContext appContext)
         {

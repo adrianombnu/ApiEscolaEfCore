@@ -1,8 +1,7 @@
 ﻿using Dominio;
 using Dominio.Entities;
 using System;
-using System.Collections.Generic;
-using System.Linq;
+
 
 namespace EfContext.Repository
 {

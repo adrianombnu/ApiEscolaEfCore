@@ -4,7 +4,7 @@ namespace Dominio
 {
     public interface IUnitOfWork : IDisposable
     {
-        IMateriaRepository MateriaRepository { get; }
+        IMateriaRepositoryEfCore MateriaRepository { get; }
 
         public bool Commit();
     }

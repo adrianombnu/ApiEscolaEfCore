@@ -1,5 +1,4 @@
 ﻿using Dominio.Entities;
-using System.Collections.Generic;
 
 namespace Dominio
 {
