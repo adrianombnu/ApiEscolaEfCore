@@ -78,6 +78,13 @@ namespace ApiEscolaEfCore.Controllers
 
         }
 
+        [HttpGet, Route("{id}/professores")]
+        public IActionResult Get(Guid id)
+        {
+            return Ok(_professorService.BuscarPeloId(id));
+
+        }
+
         [HttpGet, Route("professores")]
         public IActionResult FiltrarProfessores([FromQuery] string? nome, [FromQuery] string? sobrenome, [FromQuery] DateTime? dataDeNascimento, [FromQuery] string? documento, int page = 1, [FromQuery] int itens = 50)
         {

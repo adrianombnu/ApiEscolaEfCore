@@ -1,6 +1,7 @@
 ﻿using ApiEscolaEfCore.DTOs;
 using ApiEscolaEfCore.Entities;
 using ApiEscolaEfCore.Repository;
+using Dominio;
 using Dominio.Entities;
 using System;
 using System.Collections.Generic;
@@ -11,15 +12,18 @@ namespace ApiEscolaEfCore.Services
     public class CursoService
     {
         private readonly CursoRepository _cursoRepository;
+        private readonly ICursoRepository cursoRepository;
+        private readonly ICursoRepository _iCursoRepository;
 
-        public CursoService(CursoRepository repository)
+        public CursoService(CursoRepository repository, ICursoRepository iCursoRepository)
         {
             _cursoRepository = repository;
+            _iCursoRepository = iCursoRepository;
         }
                 
         public ResultadoDTO Cadastrar(Curso curso)
         {
-            if (_cursoRepository.BuscaCursoPeloNome(curso.Nome))
+            if (_iCursoRepository.BuscaCursoPeloNome(curso.Nome))
                 return ResultadoDTO.ErroResultado("Já existe um curso cadastrado com o nome informado!");
 
             if (!_cursoRepository.Cadastrar(curso))
@@ -31,12 +35,12 @@ namespace ApiEscolaEfCore.Services
 
         public ResultadoDTO AtualizarCurso(Curso curso)
         {
-            var cursoAtual = _cursoRepository.BuscarCursoPeloId(curso.Id);
+            var cursoAtual = _iCursoRepository.BuscarPeloId(curso.Id);
 
             if (cursoAtual is null)
                 return ResultadoDTO.ErroResultado("Curso não encontrado!");
 
-            if(_cursoRepository.VerificaSeCursoJaCadastrado(curso.Nome, curso.Id))
+            if(_iCursoRepository.VerificaSeCursoJaCadastrado(curso.Nome, curso.Id))
                 return ResultadoDTO.ErroResultado("Já existe um curso cadastrado com os dados informados!");
 
             if (!_cursoRepository.AtualizarCurso(curso))
@@ -48,12 +52,12 @@ namespace ApiEscolaEfCore.Services
 
         public ResultadoDTO RemoverCurso(Guid id)
         {
-            var curso = _cursoRepository.BuscarCursoPeloId(id);
+            var curso = _iCursoRepository.BuscarPeloId(id);
 
             if (curso is null)
                 return ResultadoDTO.ErroResultado("Curso não encontrado");
 
-            if(_cursoRepository.VerificaSeCursoPossuiTurma(id))
+            if(_iCursoRepository.VerificaSeCursoPossuiTurma(id))
                 return ResultadoDTO.ErroResultado("Ester curso já possui uma turma cadastrada, favor remove-la");
 
             if (_cursoRepository.RomoveCurso(id))
@@ -65,7 +69,7 @@ namespace ApiEscolaEfCore.Services
 
         public ResultadoDTO BuscarCursoPeloId(Guid id)
         {
-            var curso = _cursoRepository.BuscarCursoPeloId(id);
+            var curso = _iCursoRepository.BuscarPeloId(id);
 
             if (curso is null)
                 return ResultadoDTO.ErroResultado("Curso não encontrado.");
@@ -76,7 +80,7 @@ namespace ApiEscolaEfCore.Services
 
         public ResultadoDTO ListarCursos(string? nome = null, string? descricao = null, int page = 1, int itens = 50)
         {
-            var listaCursos = _cursoRepository.ListarCursos(nome, descricao, page, itens);
+            var listaCursos = _iCursoRepository.ListarCursos(nome, descricao, page, itens);
 
             return ResultadoDTO.SucessoResultado(listaCursos);
 

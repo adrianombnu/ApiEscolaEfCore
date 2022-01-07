@@ -4,6 +4,8 @@ namespace Dominio.Entities
 {
     public class Professor : Pessoa
     {
+        public Professor() { }
+
         public Professor(string nome, string sobrenome, DateTime dataNascimento, string documento)
         {
             Nome = nome;

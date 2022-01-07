@@ -5,6 +5,8 @@ namespace Dominio.Entities
 {
     public class Turma : Base<Guid>
     {
+        public Turma() { }
+
         public Turma(string nome, DateTime dataInicio, DateTime dataFim, List<Guid> idMaterias, Guid idCurso)
         {
             Nome = nome;

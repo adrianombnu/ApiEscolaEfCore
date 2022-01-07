@@ -77,6 +77,8 @@ namespace ApiEscolaEfCore
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ExercicioApiEscolaEfCore", Version = "v1" });
             });
 
+            //Os comandos abaixo sao para que o ef consiga manipular o guid, tranformando ele de guid para string e vice-versa. Se não,
+            // da pt qunado a gente tentar fazer um select no banco e retorna um campo id (string) que na aplicação usamos ele como guid ai nessa conversao da pt.
             SqlMapper.AddTypeHandler(new MySqlGuidTypeHandler());
             SqlMapper.RemoveTypeMap(typeof(Guid));
             SqlMapper.RemoveTypeMap(typeof(Guid?));

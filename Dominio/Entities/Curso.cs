@@ -7,6 +7,8 @@ namespace Dominio.Entities
         public string Nome { get; set; }
         public string Descricao { get; set; }
 
+        public Curso(){}
+
         public Curso(string nome, string descricao)
         {
             Nome = nome;

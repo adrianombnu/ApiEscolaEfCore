@@ -13,19 +13,25 @@ namespace ApiEscolaEfCore.Services
     public class TurmaService
     {
         private readonly TurmaRepository _turmaRepository;
+        private readonly ITurmaRepository _iTurmaRepository;
         private readonly CursoRepository _cursoRepository;
+        private readonly ICursoRepository _iCursoRepository;
         private readonly MateriaRepository _materiaRepository;
         private readonly IMateriaRepository _iMateriaRepository;
         private readonly IConfiguration _configuration;
 
         public TurmaService(TurmaRepository turmaRepository,
+                            ITurmaRepository iTurmaRepository,
                             CursoRepository cursoRepository,
+                            ICursoRepository iCursoRepository,
                             MateriaRepository materiaRepository,
                             IMateriaRepository iMateriaRepository,
                             IConfiguration configuration)
         {
             _turmaRepository = turmaRepository;
+            _iTurmaRepository = iTurmaRepository;
             _cursoRepository = cursoRepository;
+            _iCursoRepository = iCursoRepository;
             _materiaRepository = materiaRepository;
             _iMateriaRepository = iMateriaRepository;
             _configuration = configuration;
@@ -37,10 +43,10 @@ namespace ApiEscolaEfCore.Services
             var LimiteMinimoDeMateriasPorTurma = _configuration.GetValue<int>("LimiteMinimoDeMateriasPorTurma");
             var LimiteMaximoDeMateriasPorTurma = _configuration.GetValue<int>("LimiteMaximoDeMateriasPorTurma");
 
-            if (_turmaRepository.BuscarTurmaPeloNome(turma.Nome, turma.Id))
+            if (_iTurmaRepository.BuscarTurmaPeloNome(turma.Nome, turma.Id))
                 return ResultadoDTO.ErroResultado("Já existe uma turma cadastrada com o nome informado!");
 
-            var curso = _cursoRepository.BuscarCursoPeloId(turma.IdCurso);
+            var curso = _iCursoRepository.BuscarPeloId(turma.IdCurso);
 
             if (curso is null)
                 return ResultadoDTO.ErroResultado("Curso não encontrado");
@@ -75,15 +81,15 @@ namespace ApiEscolaEfCore.Services
 
         public ResultadoDTO AtualizarTurma(Turma turma)
         {
-            var turmaAtual = _turmaRepository.BuscarTurmaPeloId(turma.Id);
+            var turmaAtual = _iTurmaRepository.BuscarPeloId(turma.Id);
 
             if (turmaAtual is null)
                 return ResultadoDTO.ErroResultado("Turma não encontrada!");
 
-            if (_turmaRepository.BuscarTurmaPeloNome(turma.Nome, turma.Id, true))
+            if (_iTurmaRepository.BuscarTurmaPeloNome(turma.Nome, turma.Id, true))
                 return ResultadoDTO.ErroResultado("Já existe uma turma cadastrada com o nome informado!");
 
-            var curso = _cursoRepository.BuscarCursoPeloId(turma.IdCurso);
+            var curso = _iCursoRepository.BuscarPeloId(turma.IdCurso);
 
             if (curso is null)
                 return ResultadoDTO.ErroResultado("Curso não encontrado");
@@ -103,12 +109,12 @@ namespace ApiEscolaEfCore.Services
 
         public ResultadoDTO RemoverTurma(Guid id)
         {
-            var turma = _turmaRepository.BuscarTurmaPeloId(id);
+            var turma = _iTurmaRepository.BuscarPeloId(id);
 
             if (turma is null)
                 return ResultadoDTO.ErroResultado("Turma não encontrada");
 
-            if (_turmaRepository.VerificaSePossuiAlunoVinculado(id))
+            if (_iTurmaRepository.VerificaSePossuiAlunoVinculado(id))
                 return ResultadoDTO.ErroResultado("Existem alunos vinculados a esta turma, favor remove-los");
 
             if (_turmaRepository.RomoverTurma(id))
@@ -123,7 +129,7 @@ namespace ApiEscolaEfCore.Services
             var LimiteMaximoDeMateriasPorTurma = _configuration.GetValue<int>("LimiteMaximoDeMateriasPorTurma");
 
             //Buscar materias já cadastradas para a turma informada
-            var quantidadeMateriasJaCadastradas = _turmaRepository.BuscarQuantidadeMateriasCadastradas(idTurma);
+            var quantidadeMateriasJaCadastradas = _iTurmaRepository.BuscarQuantidadeMateriasCadastradas(idTurma);
 
             if ((idMaterias.Count + quantidadeMateriasJaCadastradas) > LimiteMaximoDeMateriasPorTurma)
                 return ResultadoDTO.ErroResultado("Turma deve conter no máximo " + LimiteMaximoDeMateriasPorTurma + " matérias em sua grade curricular.");
@@ -135,7 +141,7 @@ namespace ApiEscolaEfCore.Services
                 if (materia is null)
                     return ResultadoDTO.ErroResultado("Matéria informada não existe!");
 
-                if (_turmaRepository.VerificaVinculoMateriaComATurma(id, idTurma))
+                if (_iTurmaRepository.VerificaVinculoMateriaComATurma(id, idTurma))
                     return ResultadoDTO.ErroResultado("Matéria já cadastrada para a turma informada!");
 
             }
@@ -153,16 +159,16 @@ namespace ApiEscolaEfCore.Services
 
             foreach (var id in idMaterias)
             {
-                if (!_turmaRepository.VerificaVinculoMateriaComATurma(id, idTurma))
+                if (!_iTurmaRepository.VerificaVinculoMateriaComATurma(id, idTurma))
                     return ResultadoDTO.ErroResultado("Matéria não vinculada com a turma informada!");
 
                 //verificar se tem aluno matriculado a materia 
-                if (_turmaRepository.VerificaAlunoMatriculadoMateria(id, idTurma))
+                if (_iTurmaRepository.VerificaAlunoMatriculadoMateria(id, idTurma))
                     return ResultadoDTO.ErroResultado("Existe aluno matriculado a matéria, favor cancelar a matricula!");
             }
 
             //Buscar materias já cadastradas para a turma informada
-            var quantidadeMateriasJaCadastradas = _turmaRepository.BuscarQuantidadeMateriasCadastradas(idTurma);
+            var quantidadeMateriasJaCadastradas = _iTurmaRepository.BuscarQuantidadeMateriasCadastradas(idTurma);
 
             if ((quantidadeMateriasJaCadastradas - idMaterias.Count) < LimiteMinimoDeMateriasPorTurma)
                 return ResultadoDTO.ErroResultado("Turma deve conter no mínimo " + LimiteMinimoDeMateriasPorTurma + " matérias em sua grade curricular.");
@@ -173,89 +179,11 @@ namespace ApiEscolaEfCore.Services
             return ResultadoDTO.SucessoResultado(idMaterias);
 
         }
-
-        public ResultadoDTO BuscarAlunos(Guid idTurma)
-        {
-            var turma = _turmaRepository.BuscarTurmaPeloId(idTurma);
-
-            if (turma is null)
-                return ResultadoDTO.ErroResultado("Turma não encontrada");
-
-            var turmaAlunos = new RetornoTurmaDTO
-            {
-                DataInicio = turma.DataInicio,
-                DataFim = turma.DataFim,
-                IdCurso = turma.IdCurso,
-                Nome = turma.Nome
-
-            };
-
-            foreach (var materia in turma.IdMaterias)
-            {
-                turmaAlunos.Materias ??= new List<RetornoMateriaDTO>();
-
-                var materiaRetorno = _iMateriaRepository.BuscarPeloId(materia);
-
-                if (materiaRetorno is null)
-                    return ResultadoDTO.ErroResultado("Materia não encontrada!");
-
-                var materiaRetornoDTO = new RetornoMateriaDTO
-                {
-                    Id = materiaRetorno.Id,
-                    Nome = materiaRetorno.Nome
-                };
-
-                turmaAlunos.Materias.Add(materiaRetornoDTO);
-
-            }
-
-            var alunos = _turmaRepository.BuscarAlunos(idTurma);
-
-            if (alunos is null)
-                return ResultadoDTO.SucessoResultado(turmaAlunos);
-
-            foreach (var aluno in alunos)
-            {
-                turmaAlunos.Alunos ??= new List<RetornoAlunoDTO>();
-
-                var alunoRetorno = new RetornoAlunoDTO
-                {
-                    DataNascimento = aluno.DataNascimento,
-                    Documento = aluno.Documento,
-                    Sobrenome = aluno.Sobrenome,
-                    Nome = aluno.Nome,
-                    Id = aluno.Id
-                };
-
-                foreach (var materia in aluno.IdMaterias)
-                {
-                    alunoRetorno.Materias ??= new List<RetornoMateriaDTO>();
-
-                    var materiaRetorno = _iMateriaRepository.BuscarPeloId(materia);
-
-                    if (materiaRetorno is null)
-                        return ResultadoDTO.ErroResultado("Materia não encontrada!");
-
-                    var materiaRetornoDTO = new RetornoMateriaDTO
-                    {
-                        Id = materiaRetorno.Id,
-                        Nome = materiaRetorno.Nome
-                    };
-
-                    alunoRetorno.Materias.Add(materiaRetornoDTO);
-
-                }
-
-                turmaAlunos.Alunos.Add(alunoRetorno);
-            }
-
-            return ResultadoDTO.SucessoResultado(turmaAlunos);
-
-        }
+        
 
         public ResultadoDTO BuscarTurmaPeloId(Guid id)
         {
-            var turma = _turmaRepository.BuscarTurmaPeloId(id);
+            var turma = _iTurmaRepository.BuscarPeloId(id);
 
             if (turma is null)
                 return ResultadoDTO.ErroResultado("Turma não encontrada");
@@ -265,7 +193,8 @@ namespace ApiEscolaEfCore.Services
                 DataInicio = turma.DataInicio,
                 DataFim = turma.DataFim,
                 IdCurso = turma.IdCurso,
-                Nome = turma.Nome
+                Nome = turma.Nome,
+                Id = turma.Id
 
             };
 
@@ -288,7 +217,7 @@ namespace ApiEscolaEfCore.Services
 
             }
 
-            var alunos = _turmaRepository.BuscarAlunos(turma.Id);
+            var alunos = _iTurmaRepository.BuscarAlunos(turma.Id);
 
             if (alunos is null)
                 return ResultadoDTO.SucessoResultado(turmaAlunos);
@@ -338,8 +267,8 @@ namespace ApiEscolaEfCore.Services
 
             var listaTurmas = new List<RetornoTurmaDTO>();
 
-            var turmas = _turmaRepository.ListarTurmas(nome, dataInicio, dataFim, page, itens);
-
+            var turmas = _iTurmaRepository.ListarTurmas(nome, dataInicio, dataFim, page, itens);
+            
             foreach (var turma in turmas)
             {
                 var turmaAlunos = new RetornoTurmaDTO
@@ -347,9 +276,12 @@ namespace ApiEscolaEfCore.Services
                     DataInicio = turma.DataInicio,
                     DataFim = turma.DataFim,
                     IdCurso = turma.IdCurso,
-                    Nome = turma.Nome
+                    Nome = turma.Nome,
+                    Id = turma.Id
 
                 };
+                
+                //22041292722
 
                 foreach (var materia in turma.IdMaterias)
                 {
@@ -370,7 +302,7 @@ namespace ApiEscolaEfCore.Services
 
                 }
 
-                var alunos = _turmaRepository.BuscarAlunos(turma.Id);
+                var alunos = _iTurmaRepository.BuscarAlunos(turma.Id);
 
                 if (alunos is null)
                 {

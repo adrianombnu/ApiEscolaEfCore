@@ -13,16 +13,19 @@ namespace ApiEscolaEfCore.Services
         private readonly IMateriaRepository _iMateriaRepository;
         private readonly IMateriaRepositoryEfCore _iMateriaRepositoryEfCore;
         private readonly ProfessorRepository _professorRepository;
+        private readonly IProfessorRepository _iProfessorRepository;
 
         public MateriaService(MateriaRepository materiaRepository,
                               ProfessorRepository professorRepository,
                               IMateriaRepository iMateriaRepository,
-                              IMateriaRepositoryEfCore iMateriaRepositoryEfCore)
+                              IMateriaRepositoryEfCore iMateriaRepositoryEfCore,
+                              IProfessorRepository iProfessorRepository)
         {
             _materiaRepository = materiaRepository;
             _iMateriaRepository = iMateriaRepository;
             _iMateriaRepositoryEfCore = iMateriaRepositoryEfCore;
             _professorRepository = professorRepository;
+            _iProfessorRepository = iProfessorRepository;
         }
 
         public ResultadoDTO Cadastrar(Materia materia)
@@ -35,7 +38,7 @@ namespace ApiEscolaEfCore.Services
             if (_iMateriaRepository.VerificaSeMateriaJaCadastrada(materia.Nome, materia.Id, materia.IdProfessor))
                 return ResultadoDTO.ErroResultado("Matéria já cadastrada para o professor informado!");
 
-            var professor = _professorRepository.BuscaProfessorPeloId(materia.IdProfessor);
+            var professor = _iProfessorRepository.BuscarPeloId(materia.IdProfessor);
 
             if (professor is null)
                 return ResultadoDTO.ErroResultado("O prefessor informado não foi encontrado!");
@@ -57,7 +60,7 @@ namespace ApiEscolaEfCore.Services
             if (_iMateriaRepository.VerificaSeMateriaJaCadastrada(materia.Nome, materia.Id, materia.IdProfessor, true))
                 return ResultadoDTO.ErroResultado("Matéria já cadastrada para o professor informado!");
 
-            var professor = _professorRepository.BuscaProfessorPeloId(materia.IdProfessor);
+            var professor = _iProfessorRepository.BuscarPeloId(materia.IdProfessor);
 
             if (professor is null)
                 return ResultadoDTO.ErroResultado("O prefessor informado não foi encontrado!");

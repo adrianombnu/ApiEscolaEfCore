@@ -17,7 +17,7 @@ namespace DapperContext.Repository
 
         public override Materia BuscarPeloId(Guid id)
         {
-            return _connection.QuerySingle<Materia>(
+            return _connection.QuerySingleOrDefault<Materia>(
                 @"SELECT * 
                     FROM MATERIA 
                    WHERE ID = :Id", new { id });
@@ -26,7 +26,7 @@ namespace DapperContext.Repository
         
         public bool VerificaSePossuiTurmaVinculada(Guid idMateria)
         {
-            var materia = _connection.QuerySingle<Materia>(@"SELECT * 
+            var materia = _connection.QueryFirstOrDefault<Materia>(@"SELECT TM.ID 
                                                                FROM turma_materia tm 
                                                               WHERE tm.idmateria = :IdMateria", new { idMateria });
 

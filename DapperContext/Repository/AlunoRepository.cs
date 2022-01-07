@@ -20,9 +20,9 @@ namespace DapperContext.Repository
 
         public override Aluno BuscarPeloId(Guid IdAluno)
         {
-            var aluno = _connection.QuerySingle<Aluno>(@"SELECT * 
-                                                        FROM ALUNO 
-                                                       WHERE ID = :IdAluno", new { IdAluno = IdAluno.ToString() });
+            var aluno = _connection.QuerySingleOrDefault<Aluno>(@"SELECT * 
+                                                                    FROM ALUNO 
+                                                                   WHERE ID = :IdAluno", new { IdAluno = IdAluno.ToString() });
 
             aluno.IdMaterias = _connection.Query<Guid>(@"SELECT IDTURMAMATERIA 
                                                            FROM ALUNO_MATERIA 
@@ -41,7 +41,7 @@ namespace DapperContext.Repository
                             WHERE A.DOCUMENTO = :Documento 
                               AND TA.IDTURMA = :IdTurma");
 
-            var aluno = _connection.QuerySingle<Materia>(query, new
+            var aluno = _connection.QueryFirstOrDefault<Materia>(query, new
             {
                 Documento = documento.ToString(),
                 idTurma = idTurma.ToString()

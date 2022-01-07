@@ -44,7 +44,7 @@ namespace ApiEscolaEfCore.Services
             if (_iAlunoRepository.VerificaSeAlunoJaCadastrado(aluno.Documento, idTurma))
                 return ResultadoDTO.ErroResultado("Aluno já está matriculado na turma informada!");
 
-            var turma = _turmaRepository.BuscarTurmaPeloId(idTurma);
+            var turma = _iTurmaRepository.BuscarPeloId(idTurma);
 
             if (turma is null)
                 return ResultadoDTO.ErroResultado("Turma não encontrada.");
@@ -57,7 +57,7 @@ namespace ApiEscolaEfCore.Services
 
             foreach (var idMateria in aluno.IdMaterias)
             {
-                if(!_turmaRepository.VerificaVinculoMateriaComATurma(idMateria, idTurma))
+                if(!_iTurmaRepository.VerificaVinculoMateriaComATurma(idMateria, idTurma))
                     return ResultadoDTO.ErroResultado("Materia não cadastrada para o curso informado!");
 
             }
