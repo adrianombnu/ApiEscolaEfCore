@@ -14,7 +14,6 @@ namespace ApiEscolaEfCore.Services
     {
         private readonly AlunoRepository _alunoRepository;
         private readonly IAlunoRepository _iAlunoRepository;
-        private readonly MateriaRepository _materiaRepository;
         private readonly IMateriaRepository _iMateriaRepository;
         private readonly TurmaRepository _turmaRepository;
         private readonly ITurmaRepository _iTurmaRepository;
@@ -22,7 +21,6 @@ namespace ApiEscolaEfCore.Services
 
         public AlunoService(AlunoRepository alunoRepository,
                             IAlunoRepository iAlunoRepository,
-                            MateriaRepository materiaRepository,
                             IMateriaRepository iMateriaRepository,
                             TurmaRepository turmaRepository,
                             ITurmaRepository iTurmaRepository,
@@ -30,7 +28,6 @@ namespace ApiEscolaEfCore.Services
         {
             _alunoRepository = alunoRepository;
             _iAlunoRepository = iAlunoRepository;
-            _materiaRepository = materiaRepository;
             _iMateriaRepository = iMateriaRepository;
             _turmaRepository = turmaRepository;
             _iTurmaRepository = iTurmaRepository;

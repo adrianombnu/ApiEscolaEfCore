@@ -16,7 +16,6 @@ namespace ApiEscolaEfCore.Services
         private readonly ITurmaRepository _iTurmaRepository;
         private readonly CursoRepository _cursoRepository;
         private readonly ICursoRepository _iCursoRepository;
-        private readonly MateriaRepository _materiaRepository;
         private readonly IMateriaRepository _iMateriaRepository;
         private readonly IConfiguration _configuration;
 
@@ -24,7 +23,6 @@ namespace ApiEscolaEfCore.Services
                             ITurmaRepository iTurmaRepository,
                             CursoRepository cursoRepository,
                             ICursoRepository iCursoRepository,
-                            MateriaRepository materiaRepository,
                             IMateriaRepository iMateriaRepository,
                             IConfiguration configuration)
         {
@@ -32,7 +30,6 @@ namespace ApiEscolaEfCore.Services
             _iTurmaRepository = iTurmaRepository;
             _cursoRepository = cursoRepository;
             _iCursoRepository = iCursoRepository;
-            _materiaRepository = materiaRepository;
             _iMateriaRepository = iMateriaRepository;
             _configuration = configuration;
         }

@@ -20,9 +20,13 @@ namespace DapperContext.Repository
 
         public override Aluno BuscarPeloId(Guid IdAluno)
         {
-            var aluno = _connection.QuerySingleOrDefault<Aluno>(@"SELECT * 
-                                                                    FROM ALUNO 
-                                                                   WHERE ID = :IdAluno", new { IdAluno = IdAluno.ToString() });
+            var aluno = _connection.QuerySingleOrDefault<Aluno>(@"SELECT A.ID,
+                                                                         A.NOME, 
+                                                                         A.SOBRENOME,
+                                                                         A.DATADENASCIMENTO,
+                                                                         A.DOCUMENTO
+                                                                    FROM ALUNO A 
+                                                                   WHERE A.ID = :IdAluno", new { IdAluno = IdAluno.ToString() });
 
             aluno.IdMaterias = _connection.Query<Guid>(@"SELECT IDTURMAMATERIA 
                                                            FROM ALUNO_MATERIA 
@@ -34,14 +38,18 @@ namespace DapperContext.Repository
 
         public bool VerificaSeAlunoJaCadastrado(string documento, Guid idTurma)
         {
-            var query = (@"SELECT A.ID 
+            var query = (@"SELECT A.ID,
+                                  A.NOME, 
+                                  A.SOBRENOME,
+                                  A.DATADENSACIMENTO,
+                                  A.DOCUMENTO
                              FROM ALUNO A 
                        INNER JOIN TURMA_ALUNO TA
                                ON A.ID = TA.IDALUNO 
                             WHERE A.DOCUMENTO = :Documento 
                               AND TA.IDTURMA = :IdTurma");
 
-            var aluno = _connection.QueryFirstOrDefault<Materia>(query, new
+            var aluno = _connection.QueryFirstOrDefault<Aluno>(query, new
             {
                 Documento = documento.ToString(),
                 idTurma = idTurma.ToString()
@@ -57,7 +65,11 @@ namespace DapperContext.Repository
         public IEnumerable<Aluno> ListarAlunos(string? nome = null, string? sobrenome = null, DateTime? dataDeNascimento = null, int page = 1, int itens = 50)
         {
             var query = (@"SELECT * FROM (SELECT ROW_NUMBER() OVER (ORDER BY ROWID) AS RN,
-                                                 A.*                                                
+                                                 A.ID,
+                                                 A.NOME, 
+                                                 A.SOBRENOME,
+                                                 A.DATADENASCIMENTO,
+                                                 A.DOCUMENTO                                                
                                             FROM ALUNO A 
                                            WHERE 1 = 1");
 
@@ -77,10 +89,8 @@ namespace DapperContext.Repository
 
             var alunos = _connection.Query<Aluno>(sb.ToString(), new
             {
-                //Nome = nome.ToUpperIgnoreNull(),
-                Nome = nome,
-                //Sobrenome = sobrenome.ToUpperIgnoreNull(),
-                Sobrenome = sobrenome,
+                Nome = nome.ToUpperIgnoreNull(),
+                Sobrenome = sobrenome.ToUpperIgnoreNull(),
                 DataDeNascimento = (dataDeNascimento.HasValue ? dataDeNascimento.Value.ToString("dd/MM/yyyy") : "null"),
                 Itens = itens,
                 Page = page

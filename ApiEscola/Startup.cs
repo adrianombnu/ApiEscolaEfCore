@@ -52,7 +52,6 @@ namespace ApiEscolaEfCore
 
             services.AddTransient<CursoRepository>();
             services.AddTransient<ProfessorRepository>();
-            services.AddTransient<MateriaRepository>();
             services.AddTransient<TurmaRepository>();
             services.AddTransient<AlunoRepository>();
 

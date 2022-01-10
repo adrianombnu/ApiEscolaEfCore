@@ -17,18 +17,19 @@ namespace DapperContext.Repository
 
         public override Materia BuscarPeloId(Guid id)
         {
-            return _connection.QuerySingleOrDefault<Materia>(
-                @"SELECT * 
-                    FROM MATERIA 
-                   WHERE ID = :Id", new { id });
+            return _connection.QuerySingleOrDefault<Materia>(@"SELECT M.ID,
+                                                                      M.NOME, 
+                                                                      M.IDPROFESSOR
+                                                                 FROM MATERIA M
+                                                                WHERE M.ID = :Id", new { id });
         }
 
         
         public bool VerificaSePossuiTurmaVinculada(Guid idMateria)
         {
-            var materia = _connection.QueryFirstOrDefault<Materia>(@"SELECT TM.ID 
-                                                               FROM turma_materia tm 
-                                                              WHERE tm.idmateria = :IdMateria", new { idMateria });
+            var materia = _connection.QueryFirstOrDefault(@"SELECT TM.ID 
+                                                              FROM turma_materia tm 
+                                                             WHERE tm.idmateria = :IdMateria", new { idMateria });
 
             if (materia is null)
                 return false;
@@ -39,7 +40,11 @@ namespace DapperContext.Repository
 
         public bool VerificaSeMateriaJaCadastrada(string nomeMateria, Guid idMateria, Guid idProfessor, bool consideraIdDifente = false)
         {
-            var query = (@"SELECT * FROM MATERIA M WHERE 1 = 1");
+            var query = (@"SELECT M.ID,
+                                  M.NOME, 
+                                  M.IDPROFESSOR
+                             FROM MATERIA M 
+                            WHERE 1 = 1");
 
             var sb = new StringBuilder(query);
 
@@ -50,8 +55,7 @@ namespace DapperContext.Repository
                 sb.Append(" AND M.ID <> :IdMateria ");
 
             var materia = _connection.QueryFirstOrDefault<Materia>(sb.ToString(), new { IdMateria = idMateria.ToString(),
-                                                                                //NomeMateria = nomeMateria.ToUpperIgnoreNull(),
-                                                                                NomeMateria = nomeMateria.ToUpper(),
+                                                                                NomeMateria = nomeMateria.ToUpperIgnoreNull(),
                                                                                 IdProfessor = idProfessor.ToString()
                                                                                });
             if (materia is null)
@@ -63,7 +67,12 @@ namespace DapperContext.Repository
 
         public IEnumerable<Materia> ListarMaterias(string? nome = null, int page = 1, int itens = 50)
         {
-            var query = (@"SELECT * FROM (SELECT ROWNUM AS RN, M.* FROM MATERIA M WHERE 1 = 1");
+            var query = (@"SELECT * FROM (SELECT ROWNUM AS RN, 
+                                                           M.ID,
+                                                           M.NOME, 
+                                                           M.IDPROFESSOR 
+                                            FROM MATERIA M 
+                                           WHERE 1 = 1");
 
             var sb = new StringBuilder(query);
 
@@ -75,8 +84,7 @@ namespace DapperContext.Repository
 
             return _connection.Query<Materia>(sb.ToString(), new
             {
-                //Nome = nome.ToUpperIgnoreNull(),
-                Nome = nome,
+                Nome = nome.ToUpperIgnoreNull(),
                 Itens = itens,
                 Page = page
             });

@@ -9,21 +9,18 @@ namespace ApiEscolaEfCore.Services
 {
     public class MateriaService
     {
-        private readonly MateriaRepository _materiaRepository;
         private readonly IMateriaRepository _iMateriaRepository;
         private readonly IMateriaRepositoryEfCore _iMateriaRepositoryEfCore;
         private readonly ProfessorRepository _professorRepository;
         private readonly IProfessorRepository _iProfessorRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public MateriaService(MateriaRepository materiaRepository,
-                              ProfessorRepository professorRepository,
+        public MateriaService(ProfessorRepository professorRepository,
                               IMateriaRepository iMateriaRepository,
                               IMateriaRepositoryEfCore iMateriaRepositoryEfCore,
                               IProfessorRepository iProfessorRepository,
                               IUnitOfWork unitOfWork)
         {
-            _materiaRepository = materiaRepository;
             _iMateriaRepository = iMateriaRepository;
             _iMateriaRepositoryEfCore = iMateriaRepositoryEfCore;
             _professorRepository = professorRepository;
@@ -32,8 +29,7 @@ namespace ApiEscolaEfCore.Services
         }
 
         public ResultadoDTO Cadastrar(Materia materia)
-        {
-            
+        {            
             /*if (_materiaRepository.BuscaMateriaPeloNome(materia.Nome))
                 return ResultadoDTO.ErroResultado("Já existe uma materia cadastrada com o nome informado!");
             */
@@ -44,7 +40,7 @@ namespace ApiEscolaEfCore.Services
             var professor = _iProfessorRepository.BuscarPeloId(materia.IdProfessor);
 
             if (professor is null)
-                return ResultadoDTO.ErroResultado("O prefessor informado não foi encontrado!");
+                return ResultadoDTO.ErroResultado("O professor informado não foi encontrado!");
 
             /*if (!_materiaRepository.Cadastrar(materia))
                 return ResultadoDTO.ErroResultado("Não foi possível cadastrar a matéria!");

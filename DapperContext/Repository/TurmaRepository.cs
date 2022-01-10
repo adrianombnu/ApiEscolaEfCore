@@ -17,13 +17,19 @@ namespace DapperContext.Repository
 
         public override Turma BuscarPeloId(Guid id)
         {
-            var turma =  _connection.QuerySingleOrDefault<Turma>(@"SELECT * FROM TURMA WHERE ID = :Id", new { id });
+            var turma =  _connection.QuerySingleOrDefault<Turma>(@"SELECT T.ID,
+                                                                          T.NOME, 
+                                                                          T.DATAINICIO,
+                                                                          T.DATAFIM,
+                                                                          T.IDCURSO
+                                                                     FROM TURMA T
+                                                                    WHERE T.ID = :Id", new { id = id.ToString() });
 
-            turma.IdMaterias = _connection.Query<Guid>(@"SELECT * 
-                                                           FROM materia a 
-                                                          WHERE a.ID IN (SELECT tm.IDMATERIA 
-                                                                           FROM turma_materia tm 
-                                                                          WHERE tm.IDTURMA = :IdTurma)", new { IdTurma = id.ToString() }).AsList<Guid>();
+            turma.IdMaterias = _connection.Query<Guid>(@"SELECT A.ID 
+                                                           FROM MATERIA A 
+                                                          WHERE A.ID IN (SELECT TM.IDMATERIA 
+                                                                           FROM turma_materia TM 
+                                                                          WHERE TM.IDTURMA = :IdTurma)", new { IdTurma = id.ToString() }).AsList<Guid>();
 
             return turma;
 
@@ -31,7 +37,12 @@ namespace DapperContext.Repository
 
         public bool BuscarTurmaPeloNome(string nomeTurma, Guid idTurma, bool consideraIdDifente = false)
         {
-            var query = (@"SELECT * FROM TURMA T WHERE 1 = 1");
+            var query = (@"SELECT T.ID,
+                                  T.NOME, 
+                                  T.DATAINICIO,
+                                  T.DATAFIM,
+                                  T.IDCURSO 
+                             FROM TURMA T WHERE 1 = 1");
 
             var sb = new StringBuilder(query);
 
@@ -52,10 +63,10 @@ namespace DapperContext.Repository
 
         public bool VerificaVinculoMateriaComATurma(Guid idMateria, Guid idTurma)
         {
-            var turma = _connection.QueryFirstOrDefault<Turma>(@"SELECT * 
-                                                                     FROM TURMA_MATERIA TM
-                                                                    WHERE TM.IDTURMA = :IdTurma 
-                                                                      AND TM.IDMATERIA = :IdMateria", new
+            var turma = _connection.QueryFirstOrDefault(@"SELECT * 
+                                                            FROM TURMA_MATERIA TM
+                                                        WHERE TM.IDTURMA = :IdTurma 
+                                                            AND TM.IDMATERIA = :IdMateria", new
             {
                 IdTurma = idTurma.ToString(),
                 IdMateria = idMateria.ToString()
@@ -122,7 +133,11 @@ namespace DapperContext.Repository
         public IEnumerable<Turma> ListarTurmas(string? nome = null, DateTime? dataInicio = null, DateTime? dataFim = null, int page = 1, int itens = 50)
         {
             var query = (@"SELECT * FROM (SELECT ROW_NUMBER() OVER (ORDER BY ROWID) AS RN,
-                                                 T.* 
+                                                 T.ID,
+                                                 T.NOME, 
+                                                 T.DATAINICIO,
+                                                 T.DATAFIM,
+                                                 T.IDCURSO
                                             FROM TURMA T 
                                            WHERE 1 = 1");
 
@@ -142,8 +157,7 @@ namespace DapperContext.Repository
 
             var turmas = _connection.Query<Turma>(sb.ToString(), new
             {
-                //Nome = nome.ToUpperIgnoreNull(),
-                Nome = nome,
+                Nome = nome.ToUpperIgnoreNull(),
                 DataInicio = (dataInicio.HasValue ? dataInicio.Value.ToString("dd/MM/yyyy") : "null"),
                 DataFim = (dataFim.HasValue ? dataFim.Value.ToString("dd/MM/yyyy") : "null"),
                 Itens = itens,
@@ -152,11 +166,11 @@ namespace DapperContext.Repository
 
             foreach (var turma in turmas)
             {
-                turma.IdMaterias = _connection.Query<Guid>(@"SELECT * 
-                                                           FROM materia a 
-                                                          WHERE a.ID IN (SELECT tm.IDMATERIA 
-                                                                           FROM turma_materia tm 
-                                                                          WHERE tm.IDTURMA = :IdTurma)", new { IdTurma = turma.Id.ToString() }).AsList<Guid>();
+                turma.IdMaterias = _connection.Query<Guid>(@"SELECT A.ID 
+                                                           FROM MATERIA A 
+                                                          WHERE A.ID IN (SELECT TM.IDMATERIA 
+                                                                           FROM TURMA_MATERIA TM 
+                                                                          WHERE TM.IDTURMA = :IdTurma)", new { IdTurma = turma.Id.ToString() }).AsList<Guid>();
 
             }
 
@@ -166,8 +180,12 @@ namespace DapperContext.Repository
 
         public IEnumerable<Aluno> BuscarAlunos(Guid idTurma)
         {
-            var alunos = _connection.Query<Aluno>(@"SELECT DISTINCT am.IDALUNO,
-                                                                    AL.* 
+            var alunos = _connection.Query<Aluno>(@"SELECT DISTINCT AM.IDALUNO,
+                                                                    AL.ID,
+                                                                    AL.NOME, 
+                                                                    AL.SOBRENOME,
+                                                                    AL.DATADENASCIMENTO,
+                                                                    AL.DOCUMENTO      
                                                       FROM turma a
                                                 inner JOIN TURMA_MATERIA tm
                                                         ON a.ID = tm.IDTURMA
