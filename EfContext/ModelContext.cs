@@ -19,7 +19,6 @@ namespace EfContext
 
         public virtual DbSet<Aluno> Alunos { get; set; }
         public virtual DbSet<AlunoMaterium> AlunoMateria { get; set; }
-        public virtual DbSet<Cliente> Clientes { get; set; }
         public virtual DbSet<Curso> Cursos { get; set; }
         public virtual DbSet<Materium> Materia { get; set; }
         public virtual DbSet<Professor> Professors { get; set; }
@@ -107,29 +106,6 @@ namespace EfContext
                     .HasForeignKey(d => d.Idturmamateria)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ALUNO_MATERIA2");
-            });
-
-            modelBuilder.Entity<Cliente>(entity =>
-            {
-                entity.ToTable("clientes");
-
-                entity.Property(e => e.ClienteId)
-                    .HasMaxLength(36)
-                    .HasColumnName("clienteId");
-
-                entity.Property(e => e.Email)
-                    .HasMaxLength(150)
-                    .IsUnicode(false)
-                    .HasColumnName("email");
-
-                entity.Property(e => e.Idade)
-                    .HasColumnType("NUMBER(38)")
-                    .HasColumnName("idade");
-
-                entity.Property(e => e.Nome)
-                    .HasMaxLength(150)
-                    .IsUnicode(false)
-                    .HasColumnName("nome");
             });
 
             modelBuilder.Entity<Curso>(entity =>

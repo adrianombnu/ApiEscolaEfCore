@@ -10,12 +10,14 @@ namespace EfContext
         private readonly AppContext _appContext;
 
         public IMateriaRepositoryEfCore MateriaRepository { get; private set; }
+        public IAlunoRepositoryEfCore AlunoRepository { get; private set; }
 
         public UnitOfWork(AppContext appContext)
         {
             _appContext = appContext;
 
             MateriaRepository = new MateriaRepository(appContext);
+            AlunoRepository = new AlunoRepository(appContext);
         }
 
         public bool Commit()

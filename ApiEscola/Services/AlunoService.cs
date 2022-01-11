@@ -14,17 +14,21 @@ namespace ApiEscolaEfCore.Services
     {
         private readonly AlunoRepository _alunoRepository;
         private readonly IAlunoRepository _iAlunoRepository;
+        private readonly IAlunoRepositoryEfCore _iAlunoRepositoryEfCore;
         private readonly IMateriaRepository _iMateriaRepository;
         private readonly TurmaRepository _turmaRepository;
         private readonly ITurmaRepository _iTurmaRepository;
         private readonly IConfiguration _configuration;
+        private readonly IUnitOfWork _unitOfWork;
 
         public AlunoService(AlunoRepository alunoRepository,
                             IAlunoRepository iAlunoRepository,
+                            IAlunoRepositoryEfCore iAlunoRepositoryEfCore,
                             IMateriaRepository iMateriaRepository,
                             TurmaRepository turmaRepository,
                             ITurmaRepository iTurmaRepository,
-                            IConfiguration configuration)
+                            IConfiguration configuration,
+                            IUnitOfWork unitOfWork)
         {
             _alunoRepository = alunoRepository;
             _iAlunoRepository = iAlunoRepository;
@@ -32,6 +36,8 @@ namespace ApiEscolaEfCore.Services
             _turmaRepository = turmaRepository;
             _iTurmaRepository = iTurmaRepository;
             _configuration = configuration;
+            _unitOfWork = unitOfWork;
+            _iAlunoRepositoryEfCore = iAlunoRepositoryEfCore;
         }
 
         public ResultadoDTO Cadastrar(Guid idTurma, Aluno aluno)
@@ -59,8 +65,12 @@ namespace ApiEscolaEfCore.Services
 
             }
 
-            if (!_alunoRepository.Cadastrar(idTurma, aluno))
+            /*if (!_alunoRepository.Cadastrar(idTurma, aluno))
                 return ResultadoDTO.ErroResultado("Não foi possível cadastrar o aluno!");
+            */
+
+            _iAlunoRepositoryEfCore.Incluir(aluno);
+            _unitOfWork.Commit();
 
             return ResultadoDTO.SucessoResultado(aluno);
 

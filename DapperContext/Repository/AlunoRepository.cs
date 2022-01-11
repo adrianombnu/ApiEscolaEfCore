@@ -41,7 +41,7 @@ namespace DapperContext.Repository
             var query = (@"SELECT A.ID,
                                   A.NOME, 
                                   A.SOBRENOME,
-                                  A.DATADENSACIMENTO,
+                                  A.DATADENASCIMENTO,
                                   A.DOCUMENTO
                              FROM ALUNO A 
                        INNER JOIN TURMA_ALUNO TA

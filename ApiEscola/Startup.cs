@@ -68,6 +68,7 @@ namespace ApiEscolaEfCore
             services.AddTransient<IAlunoRepository, DapperContext.Repository.AlunoRepository>();
 
             services.AddTransient<IMateriaRepositoryEfCore, EfContext.Repository.MateriaRepository>();
+            services.AddTransient<IAlunoRepositoryEfCore, EfContext.Repository.AlunoRepository>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 

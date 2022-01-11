@@ -127,11 +127,7 @@ namespace ApiEscolaEfCore.Services
             return retorno;
 
         }
-
         
-
-        
-
         public bool RomoverAluno(Aluno aluno)
         {
             var conexao = _configuration.GetSection("ConnectionStrings").GetValue<string>("Conexao");
