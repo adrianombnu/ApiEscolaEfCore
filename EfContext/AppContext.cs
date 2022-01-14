@@ -9,11 +9,11 @@ namespace EfContext
 {
     public class AppContext : DbContext
     {
-        public DbSet<Materia> Materias { get; set; }
-        public DbSet<Aluno> Alunos { get; set; }
+        public DbSet<Materia> Materia { get; set; }
+        public DbSet<Aluno> Aluno { get; set; }
         public DbSet<Professor> Professor { get; set; }
-        public DbSet<Curso> Cursos { get; set; }
-        public DbSet<Turma> Turmas { get; set; }
+        public DbSet<Curso> Curso { get; set; }
+        public DbSet<Turma> Turma { get; set; }
 
         public AppContext(DbContextOptions options) : base(options)
         {
@@ -36,6 +36,7 @@ namespace EfContext
                             v => JsonConvert.SerializeObject(v), // Convert to string for persistence
                             v => JsonConvert.DeserializeObject<List<Guid>>(v)));
 
+            
             */
 
             base.OnModelCreating(modelBuilder);

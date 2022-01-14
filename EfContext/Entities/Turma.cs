@@ -3,20 +3,22 @@ using System.Collections.Generic;
 
 #nullable disable
 
-namespace EfContext
+namespace EfContext.Entities
 {
-    public partial class Materium
+    public partial class Turma
     {
-        public Materium()
+        public Turma()
         {
             TurmaMateria = new HashSet<TurmaMaterium>();
         }
 
         public string Id { get; set; }
         public string Nome { get; set; }
-        public string Idprofessor { get; set; }
+        public DateTime Datainicio { get; set; }
+        public DateTime Datafim { get; set; }
+        public string Idcurso { get; set; }
 
-        public virtual Professor IdprofessorNavigation { get; set; }
+        public virtual Curso IdcursoNavigation { get; set; }
         public virtual ICollection<TurmaMaterium> TurmaMateria { get; set; }
     }
 }

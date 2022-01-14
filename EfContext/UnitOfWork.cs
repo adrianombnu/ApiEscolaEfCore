@@ -1,5 +1,4 @@
-﻿using Dominio;
-using EfContext.Repository;
+﻿using EfContext.Repository;
 using System;
 
 namespace EfContext
@@ -7,12 +6,12 @@ namespace EfContext
     public class UnitOfWork : IUnitOfWork
     {
         private bool _disposedValue;
-        private readonly AppContext _appContext;
+        private readonly ModelContext _appContext;
 
         public IMateriaRepositoryEfCore MateriaRepository { get; private set; }
         public IAlunoRepositoryEfCore AlunoRepository { get; private set; }
 
-        public UnitOfWork(AppContext appContext)
+        public UnitOfWork(ModelContext appContext)
         {
             _appContext = appContext;
 

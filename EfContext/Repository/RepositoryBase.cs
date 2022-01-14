@@ -1,15 +1,14 @@
-﻿using Dominio;
-using Dominio.Entities;
+﻿using EfContext.Entities;
 using System;
 
 
 namespace EfContext.Repository
 {
-    public class RepositoryBase<TKey, TEntity> : IRepositoryBaseEfCore<TKey, TEntity> where TEntity : Base<TKey>
+    public class RepositoryBase<TEntity> : IRepositoryBaseEfCore<TEntity> where TEntity : class
     {
-        private readonly AppContext _context;
+        private readonly ModelContext _context;
 
-        public RepositoryBase(AppContext context)
+        public RepositoryBase(ModelContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }

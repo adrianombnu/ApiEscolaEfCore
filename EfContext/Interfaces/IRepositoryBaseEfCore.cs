@@ -1,8 +1,8 @@
-﻿using Dominio.Entities;
+﻿using EfContext.Entities;
 
-namespace Dominio
+namespace EfContext
 {
-    public interface IRepositoryBaseEfCore<TKey, TEntity> where TEntity : Base<TKey>
+    public interface IRepositoryBaseEfCore<TEntity> //where TEntity : Base<TKey>
     {
         public void Incluir(TEntity entity);
         public void Atualizar(TEntity entity);

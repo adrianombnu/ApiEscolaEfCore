@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dominio
+namespace EfContext
 {
     public interface IUnitOfWork : IDisposable
     {

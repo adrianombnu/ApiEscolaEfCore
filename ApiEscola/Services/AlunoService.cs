@@ -3,6 +3,7 @@ using ApiEscolaEfCore.Entities;
 using ApiEscolaEfCore.Repository;
 using Dominio;
 using Dominio.Entities;
+using EfContext;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;

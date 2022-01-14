@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-
+﻿
 #nullable disable
 
-namespace EfContext
+namespace EfContext.Entities
 {
     public partial class TurmaMaterium
     {

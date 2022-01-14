@@ -2,6 +2,7 @@
 using ApiEscolaEfCore.Repository;
 using Dominio;
 using Dominio.Entities;
+using EfContext;
 using System;
 
 #nullable enable
